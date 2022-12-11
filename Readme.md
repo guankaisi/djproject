@@ -162,6 +162,23 @@ using assign
 
 1）在/etc/apache2/sites-available下添加一个文件djproject.conf,文件内容如下图(下图中的/home需要替换成venv和djproject两个文件夹的实际地址)：
 
+```python
+<VirtualHost  :80>
+	WSGIDaemonProcess djproject python-home=/home/venv python-path=/home/djproject
+    WSGIProcessGroup djproject
+    WSGIScriptAlias / /home/djproject/mysite/wsgi.py
+    <Directory home/djproject/mysite>
+    <Files wsgi.py>
+    	Require all granted
+	</Files>
+	</Directory>
+    Alias /static/ /home/djproject/static root
+    <Directory /home/djproject/static root>
+    	Require all granted
+    </Directory>
+<VirtualHost>
+```
+
 ​                               
 
 2）输入命令
