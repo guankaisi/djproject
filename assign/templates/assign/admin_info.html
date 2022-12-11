@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+
+<head>
+    <title>个人信息</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <style>
+    #body {
+        background-color:rgb(235, 239, 240);
+    }
+    #navigation-nav {
+        background-color:rgb(35, 45, 59);
+        height: 65px;
+        width: 100%;
+    }
+    #nav_container {
+        margin-left: 50px;
+    }
+    #nav-left > li > h2{
+        color:rgb(251, 253, 255);
+        width: 150px;
+    }
+    #nav-left > li > a{
+        color:rgb(251, 253, 255);
+        font-size: large;
+        width: 120px;
+        margin-top: 8px;
+    }
+    #nav-left > li > a:hover{
+        background-color:rgb(9, 22, 34);
+    }
+    #nav-left > li > a:visited{
+        background-color:rgb(9, 22, 34);
+    }
+    #nav-right {
+        float: right;
+        margin-top: 10px;
+    }
+    #nav-right > a {
+        color:rgb(251, 253, 255);
+    }
+    #main{
+        margin-top: 20px;
+    }
+    #phead{
+        background-color:rgb(35, 45, 59);
+        color:rgb(251, 253, 255);
+    }
+    .panel-title{
+        font-size: large;
+    }    
+    #table{
+        font-size: large;
+    }
+    #table1{
+        font-size: large;
+    }
+    #btn_register {
+        background-color: rgb(49, 58, 71); 
+        width: 100px;
+        margin-top: 50px;
+    }
+    </style>
+</head>
+
+<body>
+    <!-- 导航栏 -->
+    <nav id="navigation-nav">
+        <div class="container navigation"> 
+            <div class="low">
+                <div class="col-xs-10">             
+                    <ul class="nav navbar-nav" id="nav-left">
+                        <li><h2>工位管理</h2></a></li>
+                        <li><a href="{% url 'assign:admin_index' %}">首页</a></li>
+                        <li><a href="{% url 'assign:search' %}">查询</a></li>
+                        <li><a href="{% url 'assign:admin_info' %}">学生信息</a></li>                                   
+                        <li><a href="{% url 'assign:admin_seat' %}">工位管理</a></li>
+                        <li><a href="{% url 'assign:admin_account' %}">账户管理</a></li>
+                        <li><a href="{% url 'assign:admin_fee' %}">计费</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-2">
+                    <div class="dropdown"  id="nav-right">
+                        <a href="#" class="btn btn-lg dropdown-toggle" data-toggle="dropdown" class="form-inline" id="username1"> 
+                            <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu" role="menu"> 
+                            <li><a href="#"><span class="glyphicon glyphicon-user" id="username2"></span></a></li>
+                            <li class="divider"></li>
+                            <li><a href="{% url 'assign:person_info' %}">修改个人信息</a></li>
+                            <li><a href="{% url 'assign:logout' %}">退出登录</a></li>
+                        </ul>
+                    </div> 
+                </div>
+            </div>
+        </div>
+    </nav>
+    <section id="main">        
+        <div class="container modify" style="width: 50%;">
+            <div class="panel panel-default">
+                <div class="panel-heading"  id="phead">
+                    <h3 class="panel-title">个人信息</h3>
+                </div>
+                <div class="panel-body" id="pbody">
+                    <table id="table">
+                        <tr>
+                            <td style="width:150px;height:50px;">姓名：</td>
+                            <td id="tname"></td>
+                        </tr>
+                        <tr>
+                            <td style="width:150px;height:50px;">职工号：</td>
+                            <td id="tid"></td>
+                        </tr>
+                        <tr><td style="width:150px;height:50px;"><a onclick="Box()">修改密码</a></td></tr>
+                    <table>
+                    <table id="table1">
+                    </table>
+                </div>
+            </div>
+        </div>    
+        <!--修改成功模态框-->
+        <div class="modal fade" id="myModal1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-body" style="text-align:center;"><h1 id="title">密码修改成功</h1></div>
+                    <div class="modal-footer">
+                        <div class="btn-group" role="group" style="padding-right: 240px;">                                           
+                            <a href="{% url 'assign:login' %}" class="btn btn-primary btn-lg" onclick="Box()">确定</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--修改失败模态框-->
+         <div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-body" style="text-align:center;color:red;"><h1 id="title">密码修改失败</h1><h3>原密码错误或新密码不一致</h3></div>
+                    <div class="modal-footer">
+                        <div class="btn-group" role="group" style="padding-right: 240px;">                                           
+                            <a href="" class="btn btn-primary btn-lg" data-dismiss="modal" onclick="Box()">确定</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+
+<script type="text/javascript">
+    var flag = 0;
+    function Message(){
+        var _password1 = document.getElementById("ipwd").value;
+        var _password2 = document.getElementById("i2pwd").value;
+        var _password3 = document.getElementById("i3pwd").value;
+        $.ajaxSetup({
+            data:{csrfmiddlewaretoken:'{{ csrf_token }}'}
+        })
+        $.ajax({
+            url:"{% url 'assign:person_info' %}",
+            type: "POST",
+            data: {_type: 1,
+                   password1: _password1,
+                   password2: _password2,
+                   password3: _password3},
+            success: function(data){
+                data = JSON.parse(data);
+                if(data["status"] == 1){
+                    $('#myModal1').modal();
+                }
+                else if(data["status"] == 0){
+                    $('#myModal2').modal();
+                }
+            }           
+        });        
+    }
+    function Box(){
+        if(flag == 0){
+            var tr1 = document.createElement("tr");
+            var tr2 = document.createElement("tr");
+            var tr3 = document.createElement("tr");
+            var tr4 = document.createElement("tr");
+
+            var td11 = document.createElement("td");
+            td11.setAttribute('style', 'height: 50px;');
+            td11.appendChild(document.createTextNode("原密码"));
+            var td12 = document.createElement("td");
+            var str1 = '<input type="password" class="form-control" required="required" id="ipwd">';
+            td12.innerHTML = str1;
+            tr1.appendChild(td11);
+            tr1.appendChild(td12);
+
+            var td21 = document.createElement("td");           
+            td21.setAttribute('style', 'height: 50px;');
+            td21.appendChild(document.createTextNode("新密码")); 
+            var td22 = document.createElement("td");
+            var str2 = '<input type="password" class="form-control" required="required" id="i2pwd">';
+            td22.innerHTML = str2;
+            tr2.appendChild(td21);
+            tr2.appendChild(td22);
+
+            var td31 = document.createElement("td");
+            td31.setAttribute('style', 'height: 50px;');
+            td31.appendChild(document.createTextNode("确认密码"));
+            var td32 = document.createElement("td");
+            var str3 = '<input type="password" class="form-control" required="required" id="i3pwd">';
+            td32.innerHTML = str3;
+            tr3.appendChild(td31);
+            tr3.appendChild(td32);
+
+            var str4 = '<button class="btn btn-primary btn-lg" id="btn_register" onclick="Message()">提交修改</button>';
+            var td4 = document.createElement("td");
+            td4.setAttribute('style', 'height: 50px;');
+            td4.innerHTML = str4;
+            tr4.appendChild(td4);
+
+            document.getElementById("table1").appendChild(tr1);
+            document.getElementById("table1").appendChild(tr2);
+            document.getElementById("table1").appendChild(tr3);
+            document.getElementById("table1").appendChild(tr4);
+
+            flag = 1;
+        }
+        else{
+            var table1 = document.getElementById("table1");
+            var body = document.getElementById("pbody");
+            body.removeChild(table1);
+
+            var table2 = document.createElement("table");
+            table2.setAttribute('id', 'table1');
+            body.appendChild(table2);
+
+            flag = 0;
+        }
+    }
+    window.onload = function(){
+        var tid = JSON.parse('{{ tid|safe }}');
+        var username = JSON.parse('{{ username|safe }}');
+
+        document.getElementById("username1").appendChild(document.createTextNode(username));
+        document.getElementById("username2").appendChild(document.createTextNode(username));
+        document.getElementById("tname").appendChild(document.createTextNode(username));
+        document.getElementById("tid").appendChild(document.createTextNode(tid));
+    }   
+</script>
+
+</html>

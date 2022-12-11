@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>账号管理</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/teacher.css">  
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="/static/js/teacher.js"></script>
+    <style>
+        #body {
+            background-color:rgb(235, 239, 240);
+        }
+        #navigation-nav {
+            background-color:rgb(35, 45, 59);
+            height: 65px;
+            width: 100%;
+        }
+        #nav_container {
+            margin-left: 50px;
+        }
+        #nav-left > li > h2{
+            color:rgb(251, 253, 255);
+            width: 150px;
+        }
+        #nav-left > li > a{
+            color:rgb(251, 253, 255);
+            font-size: large;
+            width: 120px;
+            margin-top: 8px;
+        }
+        #nav-left > li > a:hover{
+            background-color:rgb(9, 22, 34);
+        }
+        #nav-left > li > a:visited{
+            background-color:rgb(9, 22, 34);
+        }
+        #nav-right {
+            float: right;
+            margin-top: 10px;
+        }
+        #nav-right > a {
+            color:rgb(251, 253, 255);
+        }
+        #main{
+            margin-top: 20px;
+        }
+        #panel {
+            background-color:rgb(35, 45, 59);
+            color:rgb(251, 253, 255);
+        }
+        #nav1 {
+            border-bottom: 0 none;
+            background: rgb(65, 104, 177);
+        }
+        #nav1 > li > a {
+            background: transparent;
+            border-radius: 0;
+            font-size: 16px;
+            border: none;
+            color: #333;
+            padding: 12px 22px;
+        }
+        #nav1 > li.active > a, #nav1 > li.active > a > i {
+            border: 0 none;
+            background:#e67e22;
+            color: #fff;
+        }
+        #nav1 > li.active > a :after {
+            content: "";
+            position: absolute;
+            left: 45%;
+            bottom: -14px;
+            border: 7px solid transparent;
+            border-top: 7px solid #e67e22;
+        }
+        #n1 {
+            padding-top: 5px;
+            padding-left: 5px;
+            text-align:center;
+        }
+        #l21 {
+            padding-top: 10px;
+        }
+        #l22 {
+            padding-top: 50px;
+        }
+        #btn{
+            background-color:rgb(35, 45, 59);
+            color:rgb(251, 253, 255);
+            margin-top: 30px;
+            width: 200px;
+        }
+        #submit-btn {
+            text-align: center;
+        }
+        #insert {
+            width: 150px;
+            color:rgb(251, 253, 255);
+            background-color:rgb(35, 45, 59);
+        }
+        #delete {
+            width: 150px;
+            color:rgb(251, 253, 255);
+            background-color:rgb(35, 45, 59);
+        }
+    </style>
+</head>
+<body>
+    <nav id="navigation-nav">
+        <div class="container navigation" id="nav_container"> 
+            <div class="low">
+                <div class="col-xs-10">             
+                    <ul class="nav navbar-nav" id="nav-left">
+                        <li><h2>工位管理</h2></a></li>
+                        <li><a href="{% url 'assign:admin_index' %}">首页</a></li>
+                        <li><a href="{% url 'assign:search' %}">查询</a></li>  
+                        <li><a href="{% url 'assign:admin_info' %}">学生信息</a></li>                                 
+                        <li><a href="{% url 'assign:admin_seat' %}">工位管理</a></li>
+                        <li><a href="{% url 'assign:admin_account' %}">账户管理</a></li>
+                        <li><a href="{% url 'assign:admin_fee' %}">计费</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-2">
+                    <div class="dropdown"  id="nav-right">
+                        <a href="#" class="btn btn-lg dropdown-toggle" data-toggle="dropdown" class="form-inline" id="username1"> 
+                            <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu" role="menu"> 
+                            <li><a href="#"><span class="glyphicon glyphicon-user" id="username2"></span></a></li>
+                            <li class="divider"></li>
+                            <li><a href="{% url 'assign:person_info' %}">修改个人信息</a></li>
+                            <li><a href="{% url 'assign:logout' %}">退出登录</a></li>
+                        </ul>
+                    </div> 
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container main" id="main"><!--主面板，内部是左右分栏-->
+
+            <div class="col-sm-8">
+                <div class="well" style="height: 450px; overflow: auto;">
+                    <nav class="navbar navbar-default" id="n1">
+                                <h3 class="text-center">账号信息</h3>                            
+                                <table id="table" class="container table table-bordered text-center">
+                                    <thead id="row0">
+                                        <tr>
+                                            <td>
+                                                <input id="all" type="checkbox"> 选择
+                                            </td>
+                                            <td>账号</td>
+                                            <td>姓名</td>
+                                            <td>用户身份(是否为管理员)</td>                                       
+                                        </tr>
+                                    </thead>
+                                    <tbody id = "tablebody">
+                    
+                                    </tbody>
+                                </table>                                            
+                    </nav>
+                </div>
+                <div id="submit-btn">
+                    <button class="btn btn-primary btn-lg " id="insert" data-toggle="modal" data-target="#mymodal" onclick="setnull()">添加</button>
+                    <button class="btn btn-primary btn-lg " id="delete" onclick="del()">删除</button>
+                </div>
+            </div>
+
+            <div class="col-sm-4">
+                <!-- <button class="btn btn-primary btn-lg" style="height:50px;width:200px;" onclick="Add()">自动分配工位</button> -->
+                <div class="well" style="margin-top: 20px;">
+                    <nav class="navbar navbar-default" id="n2">
+                        <h3 class="text-center">最近录入情况</h3>
+                        <table id="table2" class="container table table-bordered text-center">
+                            <thead id="row11">
+                                <tr>
+                                    <td>姓名</td>
+                                    <td>上一次提交时间</td>                                       
+                                </tr>
+                            </thead>
+                            <tbody id = "timetable">
+            
+                            </tbody>
+                        </table>
+                    </nav>
+                </div>
+            </div>
+        
+    </div>
+
+    <!-- 模态框（Modal） -->
+	<div class="modal fade" id="mymodal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+					<h4 class="modal-title" id="myModalLabel">添加信息</h4>
+				</div>
+				<div class="modal-body">
+					<form role="form">
+						
+						<div class="form-group">
+							<label >账号</label>
+							<input type="text" class="form-control" name = "tno" id="tno" placeholder="请输入账号">
+                        </div>
+                        <div class="form-group">
+							<label >姓名</label>
+							<input type="text" class="form-control" name = "tname" id="tname" placeholder="请输入名称">
+						</div>
+                        <div class="form-group">
+							<label >用户身份</label>
+							<input type="radio" style="margin-left:10px;" name="tcls" id="tcls" value="0" checked>教授
+                            <input type="radio" style="margin-left:10px;" name="tcls" id="tcls" value="1" checked>副教授
+                            <input type="radio" style="margin-left:10px;" name="tcls" id="tcls" value="2" checked>讲师
+                            <input type="radio" style="margin-left:50px;" name="tcls" id="tcls" value="3">管理员
+                        </div>
+                        <div class="form-group">
+							<label >密码</label>
+							<input type="password" class="form-control" name = "password1" id="password1" placeholder="请输入密码">
+                        </div>
+                        <div class="form-group">
+							<label >确认密码</label>
+							<input typepassword="" class="form-control" name = "password2" id="password2" placeholder="请再次输入密码">
+                        </div>
+
+					</form>
+					
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+					<button type="button" class="btn btn-primary" onclick = "addlist()" data-dismiss="modal" >提交更改</button>
+				</div>
+			</div>
+			<!-- /.modal-content -->
+		</div>
+		<!-- /.modal -->
+	</div>
+    
+	<!-- 模态框（Modal）end -->
+    <!-- 判断不为空模态框（Modal） --> 
+    <div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body" style="text-align:center;"><h1 id="title">输入框不能为空，请重新输入</h1></div>
+                <div class="modal-footer">
+                    <div class="btn-group" role="group" style="padding-right: 240px;">                                           
+                        <a href="" class="btn btn-primary btn-lg" data-dismiss="modal" onclick="showmodal()">确定</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加成功模态框（Modal） --> 
+    <div class="modal fade" id="myModal3" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body" style="text-align:center;"><h1 id="title">自动分配工位成功</h1></div>
+                <div class="modal-footer">
+                    <div class="btn-group" role="group" style="padding-right: 240px;">                                           
+                        <a href="" class="btn btn-primary btn-lg" data-dismiss="modal">确定</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        var count=0;//记录现在数组里有几个元素。
+        var countinfo = {"tno":0,"tname":0,"tcls":0};
+        var tername;
+        var terno;
+        var tercls;
+        var teacherinfo = ['0','0','0','0','0'];
+        var deletesum = [];
+
+        window.onload = function(){
+            a();
+            get_user();
+        }
+        function get_user(){
+            var username = JSON.parse('{{ username|safe }}');
+            document.getElementById("username1").appendChild(document.createTextNode(username));
+            document.getElementById("username2").appendChild(document.createTextNode(username));
+        }
+        function setnull(){
+            document.getElementsByName("tno")[0].value = "";
+            document.getElementsByName("tname")[0].value = "";
+            document.getElementsByName("password1")[0].value = "";
+            document.getElementsByName("password2")[0].value = "";
+        }
+
+        function showmodal(){
+            $('#mymodal').modal();
+        }
+
+        function Add(){
+            $.ajaxSetup({
+                data:{csrfmiddlewaretoken:'{{ csrf_token }}'}
+            })
+            $.ajax({
+                type: "POST",
+                url: "{% url 'assign:admin_auto' %}",
+                traditional: true,
+                async:false,
+                data:{
+                    send: 1
+                    },
+                success: function(result) {
+                    result = JSON.parse(result);
+                    if(result["status"] == 0){
+                        alert("自动分配失败");
+                    }
+                    else{
+                        $('#myModal3').modal();
+                    }
+                },
+                error: function(e){
+                    alert("自动分配失败");
+                }
+            });
+        }
+
+        function addlist(){
+            var _tno = document.getElementsByName("tno")[0].value;
+            var _tname = document.getElementsByName("tname")[0].value;
+            var _password1 = document.getElementsByName("password1")[0].value;
+            var _password2 = document.getElementsByName("password2")[0].value;
+            if(_tname == "" || _tno == "" || _password1 == "" || _password2 == ""){
+                $('#myModal2').modal();
+            }
+            else{ 
+                var para=document.createElement("tr");
+                var tdchoose = document.createElement("input");
+                tdchoose.type = 'checkbox';
+                tdchoose.id = count;
+                
+                var node1 = document.createTextNode("选择");
+                tdchoose.appendChild(node1);
+                para.appendChild(tdchoose);
+        
+        
+                var tdno = document.createElement("td");
+                var node2=document.createTextNode(document.getElementsByName("tno")[0].value);//如需向<li>元素添加文本，必须首先创建文本节点。这段代码创建了一个文本节点
+                tdno.appendChild(node2);//向<li>元素追加了这个文本节点
+                para.appendChild(tdno);
+
+                var tdname = document.createElement("td");
+                var node=document.createTextNode(document.getElementsByName("tname")[0].value);//如需向<li>元素添加文本，必须首先创建文本节点。这段代码创建了一个文本节点
+                tdname.appendChild(node);//向元素追加了这个文本节点
+                para.appendChild(tdname);
+        
+                var tdcls = document.createElement("td");
+                if($('input:radio[name="tcls"]:checked').val() == '3'){
+                    var node3=document.createTextNode("是");//如需向<li>元素添加文本，必须首先创建文本节点。这段代码创建了一个文本节点
+                }
+                else if($('input:radio[name="tcls"]:checked').val() == '2'){
+                    var node3=document.createTextNode("否");//如需向<li>元素添加文本，必须首先创建文本节点。这段代码创建了一个文本节点
+                }
+                else if($('input:radio[name="tcls"]:checked').val() == '1'){
+                    var node3=document.createTextNode("否");//如需向<li>元素添加文本，必须首先创建文本节点。这段代码创建了一个文本节点
+                }
+                else if($('input:radio[name="tcls"]:checked').val() == '0'){
+                    var node3=document.createTextNode("否");//如需向<li>元素添加文本，必须首先创建文本节点。这段代码创建了一个文本节点
+                }
+                tdcls.appendChild(node3);//向<li>元素追加了这个文本节点
+                para.appendChild(tdcls);   
+                //最后必须向一个已有的元素追加这个新元素
+                var element=document.getElementById("tablebody");//这段代码找到一个已有的元素
+                element.appendChild(para);//这段代码向这个已有的元素追加新元素
+                
+                teacherinfo[0] = document.getElementsByName("tno")[0].value;
+                teacherinfo[1] = document.getElementsByName("tname")[0].value;
+                teacherinfo[2] = $('input:radio[name="tcls"]:checked').val();
+                teacherinfo[3] = document.getElementsByName("password1")[0].value;
+                teacherinfo[4] = document.getElementsByName("password2")[0].value;
+                count += 1;
+
+                $.ajaxSetup({
+                    data:{csrfmiddlewaretoken:'{{ csrf_token }}'}
+                })
+                $.ajax({
+                    type: "POST",
+                    url: "{% url 'assign:admin_account' %}",
+                    traditional: true,
+                    async:false,
+                    data:{
+                        account_info:teacherinfo,
+                        status:0},
+                    success: function(result) {
+                        result = JSON.parse(result);
+                        if(result["status"] == 0){
+                            alert("提交失败");
+                        }
+                        
+                    },
+                    error: function(e){
+                        alert("提交失败");
+                    }
+                });
+            }
+                                
+        }
+        
+        
+        function del(){
+            var couttmp = count;
+            for(var i = 0; i < count; i++){
+                var tmp = document.getElementById(i);
+                if(tmp.checked){
+                    var par = tmp.parentNode;//得到的是td
+                    par.parentNode.removeChild(par);//删除，然后count-1
+                    couttmp = couttmp-1;
+
+                    //设置好要返回的删除的值。
+                    var deleteinfo = ['0','0'];
+                    deleteinfo[0] = par.children[1].innerHTML;
+                    deleteinfo[1] = par.children[2].innerHTML;
+                    deletesum.push(deleteinfo);
+                }
+            }
+    
+            count = couttmp;
+            var parents = document.getElementById("tablebody");
+            for(var i=0; i < parents.children.length; i++){
+                
+                var childtr = parents.children[i];
+                var tmp = childtr.firstElementChild;
+                tmp.id = i;
+    
+            }
+            //传参。
+            $.ajaxSetup({
+                data:{csrfmiddlewaretoken:'{{ csrf_token }}'}
+            })
+            $.ajax({
+                type: "POST",
+                url: "{% url 'assign:admin_account' %}",
+                traditional: true,
+                async:false,
+                data:{
+                    delete_info:deletesum,
+                    status:1},
+                success: function(result) {
+                    result = JSON.parse(result);
+                    if(result["status"] == 0){
+                        alert("提交失败");
+                    }
+                    
+                },
+                error: function(e){
+                    alert("提交失败");
+                }
+            });
+    
+    
+        }
+    
+        function a() {//页面加载时运行的函数。
+            //正式运行时把下面取消下面这行注释，把第二行注释掉。
+            var account_info = JSON.parse('{{ account_info|safe }}');//传入一个数据。
+            var enroll_info = JSON.parse('{{ enroll_info|safe }}');
+            
+            for(var i = 0; i < account_info.length; i++){
+                var para=document.createElement("tr");
+                var tdchoose = document.createElement("input");
+                tdchoose.type = 'checkbox';
+                tdchoose.id = count;
+
+                var node1 = document.createTextNode("选择");
+                tdchoose.appendChild(node1);
+                para.appendChild(tdchoose);
+
+                var tdno = document.createElement("td");
+                if(account_info[i][0] == null){
+                    var node2=document.createTextNode("");
+                }
+                else{
+                    var node2=document.createTextNode(account_info[i][0]);//如需向<li>元素添加文本，必须首先创建文本节点。这段代码创建了一个文本节点
+                }
+                tdno.appendChild(node2);//追加了这个文本节点
+                para.appendChild(tdno);
+    
+                var tdname = document.createElement("td");
+                if(account_info[i][1] == null){
+                    var node=document.createTextNode("");
+                }
+                else{
+                    var node=document.createTextNode(account_info[i][1]);//如需向<li>元素添加文本，必须首先创建文本节点。这段代码创建了一个文本节点
+                }
+                tdname.appendChild(node);//向元素追加了这个文本节点
+                para.appendChild(tdname);
+     
+                
+    
+                var tdcls = document.createElement("td");
+                if(account_info[i][2] == null){
+                    var node2=document.createTextNode("");
+                }
+                else if(account_info[i][2] == '0'){
+                    var node3=document.createTextNode("否");//如需向<li>元素添加文本，必须首先创建文本节点。这段代码创建了一个文本节点
+                }
+                else if(account_info[i][2] == '1'){
+                    var node3=document.createTextNode("是");//如需向<li>元素添加文本，必须首先创建文本节点。这段代码创建了一个文本节点
+                }
+                
+                tdcls.appendChild(node3);//向<li>元素追加了这个文本节点
+                para.appendChild(tdcls);
+    
+    
+            //最后必须向一个已有的元素追加这个新元素
+            var element=document.getElementById("tablebody");//这段代码找到一个已有的元素
+            element.appendChild(para);//这段代码向这个已有的元素追加新元素
+    
+            count += 1;
+            }  
+
+            for(var i = 0; i < enroll_info.length; i++){
+                var para=document.createElement("tr");
+
+                var tdno = document.createElement("td");
+                if(enroll_info[i][0] == null){
+                    var node2=document.createTextNode("");
+                }
+                else{
+                    var node2=document.createTextNode(enroll_info[i][0]);//如需向<li>元素添加文本，必须首先创建文本节点。这段代码创建了一个文本节点
+                }
+                tdno.appendChild(node2);//向<li>元素追加了这个文本节点
+                para.appendChild(tdno);
+
+                var tdname = document.createElement("td");
+                if(enroll_info[i][1] == null){
+                    var node=document.createTextNode("");
+                }
+                else{
+                    var node=document.createTextNode(enroll_info[i][1]);//如需向<li>元素添加文本，必须首先创建文本节点。这段代码创建了一个文本节点
+                }
+                tdname.appendChild(node);//向元素追加了这个文本节点
+                para.appendChild(tdname);
+
+                var element=document.getElementById("timetable");//这段代码找到一个已有的元素
+                element.appendChild(para);//这段代码向这个已有的元素追加新元素
+            }
+            
+
+
+
+        } 
+
+    
+    
+    
+    
+    </script>
+    
+    
+</body>
+</html>

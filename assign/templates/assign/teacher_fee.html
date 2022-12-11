@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+
+
+<head>
+    <title>计费</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <style>
+    #body {
+        background-color:rgb(235, 239, 240);
+        width: 100%;
+    }
+    #navigation-nav {
+        background-color:rgb(35, 45, 59);
+        height: 65px;
+        width: 100%;
+    }
+    #nav_container {
+        margin-left: 50px;
+    }
+    #nav-left > li > h2{
+        color:rgb(251, 253, 255);
+        width: 150px;
+    }
+    #nav-left > li > a{
+        color:rgb(251, 253, 255);
+        font-size: large;
+        width: 120px;
+        margin-top: 8px;
+    }
+    #nav-left > li > a:hover{
+        background-color:rgb(9, 22, 34);
+    }
+    #nav-left > li > a:visited{
+        background-color:rgb(9, 22, 34);
+    }
+    #nav-right {
+        float: right;
+        margin-top: 10px;
+    }
+    #nav-right > a {
+        color:rgb(251, 253, 255);
+    }
+    #main{
+        width: 100%;
+    }
+    #search_container {
+        margin-left: 200px;
+    }
+    #title {
+        margin-top: 30px;
+        text-align: center;
+    }
+    #search{
+        margin-left: 90px;
+        margin-top: 30px;
+        width: 1000px;
+    }
+    #result{
+        margin-top: 30px;
+    }
+    #panel{
+        background-color:rgb(35, 45, 59);
+        color:rgb(251, 253, 255);
+    }
+    </style>
+</head>
+
+<body id="body">
+    <!-- 导航栏 -->
+    <nav id="navigation-nav">
+        <div class="container navigation" id="nav_container"> 
+            <div class="low">
+                <div class="col-xs-8">             
+                    <ul class="nav navbar-nav" id="nav-left">
+                        <li><h2>工位管理</h2></a></li>
+                        <li><a href="{% url 'assign:teacher_index' %}">首页</a></li>                            
+                        <li><a href="{% url 'assign:search' %}">查询</a></li>
+                        <li><a href="{% url 'assign:teacher_enroll' %}">学生管理</a></li>
+                        <li><a href="{% url 'assign:teacher_fee' %}">计费</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-4">
+                    <div class="dropdown"  id="nav-right">
+                        <a href="#" class="btn btn-lg dropdown-toggle" data-toggle="dropdown" class="form-inline" id="username1"> 
+                            <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu" role="menu"> 
+                            <li><a href="#"><span class="glyphicon glyphicon-user" id="username2"></span></a></li>
+                            <li class="divider"></li>
+                            <li><a href="{% url 'assign:person_info' %}">修改个人信息</a></li>
+                            <li><a href="{% url 'assign:logout' %}">退出登录</a></li>
+                        </ul>
+                    </div> 
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div class="container roll">
+            <div class="well" id="well">
+                <h3 class="text-center"> 计费信息</h3>         
+                            <table id="table" class="container table table-bordered text-center">
+                                <thead id="row0">
+                                    <tr>
+                                        <td>教师姓名</td>
+                                        <td>职称</td>
+                                        <td>免费学硕工位数量</td>
+                                        <td>免费博士工位数量</td> 
+                                        <td>学硕工位占用</td>
+                                        <td>博士工位占用</td>
+                                        <td>其他工位占用</td>
+                                        <td>单个工位每月费用</td>
+                                        <td>总费用</td> 
+                                        <td>是否缴费</td>                                     
+                                    </tr>
+                                </thead>
+                                <tbody id = "tablebody">
+                                </tbody>
+                            </table>                                            
+            </div>
+            <div class="form-inline text-left">
+                注: 默认情况下,教授每学期免费博士工位: 2, 免费学硕工位: 2; 副教授每学期免费博士工位: 1, 免费学硕工位: 2; 讲师每学期免费学硕工位: 2。每学期按四个月计费。
+            </div>
+        
+    </div>
+
+</body>
+<script>
+    window.onload = function(){
+        select();
+        get_user();   
+    }
+    function get_user(){
+        var teachername = JSON.parse('{{teachername|safe}}');
+        document.getElementById("username1").appendChild(document.createTextNode(teachername));
+        document.getElementById("username2").appendChild(document.createTextNode(teachername));
+    }
+
+
+    function select(){
+        var fee_info = JSON.parse('{{fee_info|safe}}');// 从后端数据库传入数据
+        // console.log(fee_info.length);
+        // console.log(fee_info[0][1]);
+        for(var i = 0; i < fee_info.length; i++){
+            var para = document.createElement("tr");
+            // var tdchoose = document.createElement("input");
+            // tdchoose.type = 'checkbox';
+            // tdchoose.id = count;
+            // // 把选择的那个框框传入到前端
+            // var node1 = document.createTextNode("选择");
+            // tdchoose.appendChild(node1);
+            // para.appendChild(tdchoose);
+            // 教师姓名传入前端
+            var tname = document.createElement("td");
+            var node2 = document.createTextNode(fee_info[i][0]);
+            tname.appendChild(node2);
+            para.appendChild(tname);
+            // 教师职称传入前端
+            var title = document.createElement("td");
+            var node3 = document.createTextNode(fee_info[i][1]);
+            title.appendChild(node3);
+            para.appendChild(title);
+            //教师免费学硕名额
+            var tfree1 = document.createElement("td");
+            var node4 = document.createTextNode(fee_info[i][2]);
+            tfree1.appendChild(node4);
+            para.appendChild(tfree1);
+            //教师免费博士名额
+            var tfree2 = document.createElement("td");
+            var node5 = document.createTextNode(fee_info[i][3]);
+            tfree2.appendChild(node5);
+            para.appendChild(tfree2);
+            //教师学硕名额占用
+            var toccupy1 = document.createElement("td");
+            var node6 = document.createTextNode(fee_info[i][4]);
+            toccupy1.appendChild(node6);
+            para.appendChild(toccupy1);
+            //教师博士名额占用
+            var toccupy2 = document.createElement("td");
+            var node7 = document.createTextNode(fee_info[i][5]);
+            toccupy2.appendChild(node7);
+            para.appendChild(toccupy2);
+            //教师其他类别学生名额占用
+            var toccupy3 = document.createElement("td");
+            var node8 = document.createTextNode(fee_info[i][6]);
+            toccupy3.appendChild(node8);
+            para.appendChild(toccupy3);
+            //教师需支付单位费用
+            var tunit = document.createElement("td");
+            var node9 = document.createTextNode(fee_info[i][7]);
+            tunit.appendChild(node9);
+            para.appendChild(tunit);
+            //教师需支付总费用
+            var tfee = document.createElement("td");
+            var node10 = document.createTextNode(fee_info[i][8]);
+            tfee.appendChild(node10);
+            para.appendChild(tfee);
+            //教师是否完成付费
+            var tpay = document.createElement("td");
+            if(fee_info[i][9] == '0'){
+                var node11 = document.createTextNode("否");
+            }
+            else if(fee_info[i][9]=='1'){
+                var node11 = document.createTextNode("是");
+            }
+            tpay.appendChild(node11);
+            para.appendChild(tpay);
+        
+        //最后加入到整体文件之中
+        var element=document.getElementById("tablebody");
+        element.appendChild(para);
+        
+        }
+    }
+
+
+</script>
+</html>

@@ -1,0 +1,47 @@
+#main {
+    height: 800px;
+    margin: auto;
+    background-color: rgb(94, 185, 245);
+    background-position: center 0;    
+    background-repeat: no-repeat;    
+    background-attachment: fixed;    
+    background-size: cover;    
+    -webkit-background-size: cover;    
+    -o-background-size: cover;    
+    -moz-background-size: cover;    
+    -ms-background-size: cover;
+}
+
+#register_bar {
+    background-color: rgb(252, 252, 253); 
+    margin-top: 200px;
+    width: 400px;
+    height: 420px;
+    text-align:center;
+    word-spacing: -10px;
+}    
+
+#title {
+    width: auto;
+    font-size: 30px;
+    padding-top: 30px;
+}
+
+#table {  
+    margin: auto;
+    height: 200px;
+}
+
+
+#label {
+    font-size: 15px;
+}
+
+#btn_register {
+    background-color: rgb(49, 58, 71); 
+    width: 100px;
+    margin-top: 50px;
+}
+
+
+

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+
+<head>
+    <title>注册</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{% static 'assign/register.css' %}">
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="/static/js/register.js"></script>
+</head>
+
+<body>
+    <section id="main">
+        <div class="container register">
+            <div class="low">
+                <div class="col-md-2 col-md-offset-4">
+                    <div id="register_bar">
+                        <h1 id="title">注册账号</h1>
+                        <form class="navbar-form" action="{% url 'assign:register' %}" method="post">                                                               
+                            {% csrf_token %}
+                            <table id="table">
+                                <tr>
+                                    <td><h1 id="label">账号：</h1></td>
+                                    <td> {{ form.username }} </td>                                       
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td><p id="msg_act" style="margin-left: 80px"></p></td> 
+                                </tr>
+                                <tr>
+                                    <td><h1 id="label">密码：</h1></td>
+                                    <td> {{ form.password }} </td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td><p id="msg_ipwd" style="margin-left: 80px"></p></td> 
+                                </tr>
+                                <tr>
+                                    <td><h1 id="label">确认密码：</h1></td>
+                                    <td><input type="password" class="form-control" required="required" 
+                                            placeholder="请输入密码" id="i2pwd"></td>
+                                </tr>
+                            </table> 
+                            <p id="msg_pwd" style="margin-left: 150px"></p>                      
+                            <button class="btn btn-primary btn-lg" id="btn_register" type="submit">注册</button>
+                            <input type="hidden" name="next" value="{{ next }}">                              
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container message" style="text-align: center;">
+            <p style="color:red;">{{ msg }}</p>
+        </div>
+    </section>
+    <div class="if/else">
+        {% if duplicate %}
+            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-body"><h1 id="title">该账号已存在</h1></div>
+                        <div class="modal-footer">
+                            <div class="btn-group" role="group" style="padding-right: 240px;">                                           
+                                <button type="button" class="btn btn-primary btn-lg" data-dismiss="modal">确定</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>  
+        {% endif %}
+        {% if form.success %}
+            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-body"><h1 id="title">注册成功</h1></div>
+                        <div class="modal-footer">
+                            <div class="btn-group" role="group" style="padding-right: 240px;">                                           
+                                <a href="{% url 'login' %}" class="btn btn-primary btn-lg" οnclick="doSubmit();">确定</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</body>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('#ipact').on('input propertychange', function() {       //input propertychange即实时监控键盘输入包括粘贴
+            var act = $.trim($(this).val());                     //获取this，即ipwd的val()值，trim函数的作用是去除空格
+            if($(this).val()=="" || act.length==0){
+                $("#msg_act").html("<font color='red'>账号不能为空</font>");
+                $("#btn_register").attr("disabled",true);   //使按钮无法点击
+            }
+            else{
+                $("#msg_act").html("<font></font>");
+            }
+        })
+    })
+
+    $(document).ready(function(){
+        $('#ipwd').on('input propertychange', function() {       //input propertychange即实时监控键盘输入包括粘贴
+            var pwd = $.trim($(this).val());                     //获取this，即ipwd的val()值，trim函数的作用是去除空格
+            var rpwd = $.trim($("#i2pwd").val());
+            if($(this).val()=="" || pwd.length==0){
+                $("#msg_ipwd").html("<font color='red'>密码不能为空</font>");
+                $("#btn_register").attr("disabled",true);   //使按钮无法点击
+            }
+            else{
+                $("#msg_ipwd").html("<font></font>");  
+            }
+            if(pwd==rpwd && pwd.length>0){                                   //相同则提示密码匹配
+                $("#msg_pwd").html("<font color='green'>两次密码匹配通过</font>");
+                $("#btn_register").attr("disabled",false);   //使按钮无法点击
+            }
+            else{                                           //不相同则提示密码匹配
+                $("#msg_pwd").html("<font color='red'>两次密码不匹配</font>");
+                $("#btn_register").attr("disabled",true);
+            }
+        })
+    })
+    
+    //由于是两个输入框，所以进行两个输入框的几乎相同的判断
+    $(document).ready(function(){
+        $('#i2pwd').on('input propertychange', function() {
+            var pwd = $.trim($(this).val());
+            var rpwd = $.trim($("#ipwd").val());
+            if($(this).val()=="" || pwd.length==0){
+                $("#msg_pwd").html("<font color='red'>请输入密码</font>");
+                $("#btn_register").attr("disabled",true);   //使按钮无法点击
+            }
+            else if(pwd==rpwd && pwd.length>0){
+                $("#msg_pwd").html("<font color='green'>两次密码匹配通过</font>");
+                $("#btn_register").attr("disabled",false);
+            }else{
+                $("#msg_pwd").html("<font color='red'>两次密码不匹配</font>");
+                $("#btn_register").attr("disabled",true);
+            }
+        })
+    })
+
+    //加载页面后锁住注册按钮
+    window.onload = function() {
+        $("#btn_register").attr("disabled",true);   //使按钮无法点击
+    }
+
+    //修正modal弹窗高度不能自适应的问题
+    $(document).ready(function(){
+        $('#btn_register').click(function() {
+            $('#myModal').css("top", ($(window).height() - $('#myModal').height()) / 2);
+            $('#myModal').modal("show");
+        })
+    })
+</script>
+</html>

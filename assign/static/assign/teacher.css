@@ -1,0 +1,24 @@
+#navigation-nav {
+    background-color:rgb(35, 45, 59);
+    height: 60px;
+    width: 100%;
+}
+.badge-info {
+    background-color: #d9534f;
+}
+#nav-right > li > a{
+    color:rgb(251, 253, 255);
+}
+#nav-right > li > a:hover{
+    background-color:rgb(9, 22, 34);
+}
+#nav-right > li > a:visited{
+    background-color:rgb(9, 22, 34);
+}
+#panel {
+    background-color:rgb(35, 45, 59);
+    color:rgb(251, 253, 255);
+}
+#tab > li > a{
+    color:rgb(9, 22, 34);
+}

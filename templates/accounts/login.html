@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+{% load static %}
+
+<head>
+    <title>登录</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{% static 'assign/login.css' %}">
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <style>
+        #navigation-nav {
+            background-color:rgb(35, 45, 59);
+            height: 65px;
+            width: 100%;
+        }
+        #nav-left > li > h2{
+            color:rgb(251, 253, 255);
+            width: 400px;
+        }
+        #nav-right {
+            float: right;
+        }
+        #nav-right > li > a{
+            color:rgb(251, 253, 255);
+            font-size: large;
+            width: 150px;
+            margin-top: 8px;
+        }
+        #nav-right > li > a:hover{
+            background-color:rgb(9, 22, 34);
+        }
+        #nav-right > li > a:visited{
+            background-color:rgb(9, 22, 34);
+        }
+        #rucbtn {
+            background-color: rgb(35, 45, 59); 
+            margin-top: 50px;
+            width: 200px;
+        }
+    </style>
+</head>
+
+<body>
+    <section id="log-in">
+        <!-- 导航栏 -->
+        <nav id="navigation-nav">
+            <div class="container navigation"> 
+                <div class="low">
+                    <div class="col-xs-6">             
+                        <ul class="nav navbar-nav" id="nav-left">
+                            <li><h2>实验室工位管理系统</h2></a></li>
+                        </ul>
+                    </div>
+                    <div class="col-xs-6">
+                        <ul class="nav navbar-nav" id="nav-right">                             
+                            <li><a href="">关于系统</a></li>
+                            <li><a href="">关于我们</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <div class="container title" style="margin-top:100px;">
+            <div class="low">
+                <div style="margin-left:450px;">
+                    <img src="{% static 'assign/logo.png' %}" height="200px" >
+                </div>
+            </div>
+		</div>
+        <div class="container input">           
+                <div class="low">               
+                        <table style="width:100%;">
+                            <tr>
+                                <td><h2>账号：</h2></td>
+                                <td><input type="text" class="form-control" required="required" 
+                                        placeholder="请输入账号" id="ipact"></td>
+                                <td style="width:140px;"><h1></h1></td> 
+                                <td><h2>密码：</h2></td>
+                                <td><input type="password" class="form-control" required="required" 
+                                        placeholder="请输入密码" id="ipwd"></td>                                      
+                            </tr>
+                        <table>                                                           
+                </div>
+                <div class="low">
+                    <div class="col col-sm-6">
+                        <div style="margin-left:140px;">
+                            <a href="{% url 'assign:loggin' %}" id="rucbtn" class="btn btn-primary btn-lg">
+                                <img src="https://go.ruc.edu.cn/static/themes/ruc/images/favicon.ico?v=2.00.20201108" id="icon" height="25px" style="float:left;">
+                                <div id="ructitle" style="float:left;margin-left:5px;">微人大登录</div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col col-sm-6">
+			<div style="margin-left:50px;">
+                            <button class="btn btn-primary btn-lg" id="button" onclick="Message()">
+                                <img src="{% static 'assign/gear.ico' %}" id="icon" height="25px" style="float:left;">
+                                <div id="ructitle" style="float:left;margin-left:5px;">登录</div>
+                            </button>
+                            <input type="hidden" name="next" value="" id="skip">
+			</div>                       
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!--注册失败模态框-->
+    <div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body" style="text-align:center;color:red;"><h1 id="title">登录失败</h1><h3>账号或密码错误</h3></div>
+                <div class="modal-footer">
+                    <div class="btn-group" role="group" style="padding-right: 240px;">                                           
+                        <a href="" class="btn btn-primary btn-lg">确定</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        function Message(){
+        var _account = document.getElementById("ipact").value;
+        var _password = document.getElementById("ipwd").value;
+        $.ajaxSetup({
+            data:{csrfmiddlewaretoken:'{{ csrf_token }}'}
+        })
+        $.ajax({            
+            url:"{% url 'assign:login' %}",
+            type: "POST",
+            data: {account: _account,
+                   password: _password},
+            success: function(data){
+                data = JSON.parse(data);
+                if(data["status"] == 1){
+                    window.location.href = window.location.protocol + "//" + window.location.host + data['next']
+                }
+                else if(data["status"] == 0){
+                    $('#myModal2').modal();
+                }
+            }           
+        });
+        
+    }
+    </script>
+</body>
+
+</html>
