@@ -1,0 +1,643 @@
+
+<!DOCTYPE html>
+<html>
+{% load static %}
+<head>
+    <title>学生信息</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <link href="https://cdn.bootcss.com/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css"
+          rel="stylesheet">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdn.bootcss.com/moment.js/2.24.0/moment-with-locales.js"></script>
+    <!--    <script src="https://cdn.bootcss.com/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>-->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="{% static 'assign/admin_seat_jquery-2.1.0.js' %}"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <!-- <script type="text/javascript" src="./js/xlsx.core.min.js"></script> -->
+
+    <style>
+        #body {
+            background-color: rgb(235, 239, 240);
+        }
+
+        #navigation-nav {
+            background-color: rgb(35, 45, 59);
+            height: 65px;
+            width: 100%;
+        }
+        #nav_container {
+            margin-left: 50px;
+        }
+        #nav-left > li > h2 {
+            color: rgb(251, 253, 255);
+            width: 150px;
+        }
+
+        #nav-left > li > a {
+            color: rgb(251, 253, 255);
+            font-size: large;
+            width: 120px;
+            margin-top: 8px;
+        }
+
+        #nav-left > li > a:hover {
+            background-color: rgb(9, 22, 34);
+        }
+
+        #nav-left > li > a:visited {
+            background-color: rgb(9, 22, 34);
+        }
+
+        #nav-right {
+            float: right;
+            margin-top: 10px;
+        }
+
+        #nav-right > a {
+            color: rgb(251, 253, 255);
+        }
+
+        #main {
+            margin-top: 20px;
+        }
+
+        #well {
+            margin-top: 30px;
+        }
+
+        #table {
+            margin-top: 20px;
+        }
+
+        #submit-btn {
+            text-align: center;
+        }
+
+        #insert {
+            width: 150px;
+            color:rgb(251, 253, 255);
+            background-color:rgb(35, 45, 59);
+        }
+        #delete {
+            width: 150px;
+            color:rgb(251, 253, 255);
+            background-color:rgb(35, 45, 59);
+        }
+    </style>
+    
+</head>
+
+<body>
+<!-- 导航栏 -->
+<div id="app">
+    <nav id="navigation-nav">
+        <div class="container navigation" id="nav_container">
+            <div class="low">
+                <div class="col-xs-10">
+                    <ul class="nav navbar-nav" id="nav-left">
+                        <li><h2>工位管理</h2></a></li>
+                        <li><a href="{% url 'assign:admin_index' %}">首页</a></li>
+                        <li><a href="{% url 'assign:search' %}">查询</a></li>
+                        <li><a href="{% url 'assign:admin_seat' %}">工位管理</a></li>
+                        <li><a href="{% url 'assign:admin_account' %}">账户管理</a></li>
+                        <li><a href="{% url 'assign:admin_fee' %}">计费管理</a></li>
+                        <li class="dropdown" id="nav-down">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <b class="caret"></b>
+                                学生管理
+                                
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="{% url 'assign:admin_info' %}">学生信息管理</a></li>
+                                <li><a href="{% url 'assign:admin_graduate' %}">毕业管理</a></li>
+                            </ul>
+                        </li>             
+                    </ul>
+                </div>
+                <div class="col-xs-2">
+                    <div class="dropdown" id="nav-right">
+                        <a href="#" class="btn btn-lg dropdown-toggle" data-toggle="dropdown" class="form-inline"
+                           id="username1">
+                            <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="#"><span class="glyphicon glyphicon-user" id="username2"></span></a></li>
+                            <li class="divider"></li>
+                            <li><a href="{% url 'assign:person_info' %}">修改个人信息</a></li>
+                            <li><a href="{% url 'assign:logout' %}">退出登录</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div class="container roll">
+        <div class="well" id="well">
+            <h3 class="text-center">学生信息</h3>
+            <div class="form-inline">
+               
+                <!-- 上传input -->
+                <el-form :inline="true" class="demo-form-inline">
+                    <div id="submit-btn">
+                    <el-form-item label="上传新增">
+                        <input type="file" accept=".xlsx, .xls" @input="changeFile($event,addFromExecl)" />
+
+                    </el-form-item>
+                    <el-form-item label="上传删除">
+                        <input type="file" accept=".xlsx, .xls" @input="changeFile($event,delFromExecl)" />
+                    </div>
+                    </el-form-item>
+                </el-form>
+            </div>
+            <el-form :inline="true" class="demo-form-inline">
+                <el-form-item label="姓名">
+                    <el-input v-model="searchForm.name" @input="search" placeholder="姓名"></el-input>
+                </el-form-item>
+                <el-form-item label="学号">
+                    <el-input v-model="searchForm.stuNo" @input="search" placeholder="姓名"></el-input>
+                </el-form-item>
+                <el-form-item label="导师">
+                    <el-input v-model="searchForm.teacher" @input="search" placeholder="导师"></el-input>
+                </el-form-item>
+                <el-form-item label="">
+                    <button class="btn btn-primary btn-lg" id="resrt" @click="">重置</button>
+                </el-form-item>
+            </el-form>
+            <!--            表格-->
+            
+            <el-table
+                    ref="multipleTable"
+                    :data="tmpFormList"
+                    tooltip-effect="dark"
+                    style="width: 100%"
+                    @selection-change="handleSelectionChange"
+            >
+                <el-table-column
+                        type="selection"
+                        width="55">
+                </el-table-column>
+                <el-table-column
+                        label="学号"
+                        prop="stuNo"
+                        sortable
+                        width="120">
+                </el-table-column>
+                <el-table-column
+                        prop="name"
+                        label="姓名"
+                        sortable
+                        width="120">
+                </el-table-column>
+                <el-table-column
+                        prop="identity"
+                        label="学生身份（类型）"
+                        width="160"
+                        sortable
+                        show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column
+                        prop="teacher"
+                        label="导师"
+                        sortable
+                        width="120">
+                </el-table-column>
+                <el-table-column
+                        prop="date"
+                        label="入学年份"
+                        sortable
+                        width="120">
+                </el-table-column>
+                <el-table-column
+                        prop="roomNo"
+                        label="所在房间"
+                        sortable
+                        width="120">
+                </el-table-column>
+                <el-table-column
+                        prop="workNo"
+                        sortable
+                        label="工位编号"
+                        width="120">
+                </el-table-column>
+                <el-table-column label="操作">
+                    <template slot-scope="scope">
+                        <el-button
+                                size="mini"
+                                @click="handleEdit(scope.$index, scope.row)">编辑
+                        </el-button>
+                        <el-button
+                                size="mini"
+                                type="danger"
+                                @click="handleDelete(scope.$index, scope.row)">删除
+                        </el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+
+            <el-dialog :title="isUpdate?'编辑':'新建'" :visible.sync="showChangeDialog">
+
+                <el-form ref="form" :rules="rules" :model="form" label-width="80px">
+                    <el-form-item label="学号" prop="stuNo">
+                        <el-input v-model="form.stuNo"></el-input>
+                    </el-form-item>
+                    <el-form-item label="姓名" prop="name">
+                        <el-input v-model="form.name"></el-input>
+                    </el-form-item>
+                    <el-form-item label="学生类型（身份）" prop="identity">
+                        <el-select v-model="form.identity" placeholder="请选择活动区域">
+                            <el-option label="直博" value="直博"></el-option>
+                            <el-option label="普通博士" value="普通博士"></el-option>
+                            <el-option label="学硕" value="学硕"></el-option>
+                            <el-option label="非全日制工硕" value="非全日制工硕"></el-option>
+                            <el-option label="全日制工硕" value="全日制工硕"></el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="导师" prop="teacher">
+                        <el-input v-model="form.teacher"></el-input>
+                    </el-form-item>
+                    <el-form-item label="入学年份" prop="date">
+                        <el-date-picker
+                                v-model="date"
+                                type="date"
+                                @change="changeDate"
+                                placeholder="选择日期">
+                        </el-date-picker>
+
+                    </el-form-item>
+
+                    <el-form-item>
+                        <el-button type="primary" @click="saveOrUpdate">保存</el-button>
+                        <el-button @click="cancel">取消</el-button>
+                    </el-form-item>
+                </el-form>
+
+            </el-dialog>
+        </div>
+        <div id="submit-btn">
+            <button class="btn btn-primary btn-lg" id="insert" data-toggle="modal" data-target="#mymodal" @click="openSave">添加</button>
+            <button class="btn btn-primary btn-lg" id="delete" @click="deleteMul">删除</button>
+        </div>
+    </div>
+</div>
+
+
+</body>
+<script>
+    // import qs from 'qs';
+    // import axios from "axios";
+
+    // //下面是将$axios和$qs挂在原型上，以便在实例中能用 this.$axios能够拿到
+    // Vue.prototype.$axios = axios;
+    // Vue.prototype.$qs = qs;
+
+    var app = new Vue({
+        el: '#app',
+        data() {
+                return{
+            formList: [],
+            tmpFormList: [],
+            dataListSelected: [],
+            isUpdate: false,
+            updateIndex: 0,
+            showChangeDialog: false,
+            identitySelect: "",
+            date: '',
+            searchForm:{
+                stuNo: "",
+                name: "",
+                identity: "",
+                teacher: "",
+                date: "",
+                roomNo: "",
+                workNo: ""
+            },
+            
+            form: {
+                stuNo: "",
+                name: "",
+                identity: "直博",
+                teacher: "",
+                date: "",
+                roomNo: "",
+                workNo: ""
+            },
+            rules: {
+                stuNo: [
+                    {required: true, message: '请输入活动学号', trigger: 'blur'},
+                    
+                ],
+                name: [
+                    {required: true, message: '请输入姓名', trigger: 'blur'}
+                ],
+                identity: [
+                    {required: true, message: '请选择身份', trigger: 'blur'}
+                ],
+                teacher: [
+                    {required: true, message: '请输入导师', trigger: 'blur'}
+                ],
+                date: [
+                    {required: true, message: '请输入入学年份', trigger: 'blur'}
+                ]
+            }
+       
+            }
+        },
+        mounted() {
+            this.getData();
+            this.tmpFormList = this.formList;
+            
+        },
+        methods: {
+            getData(){
+                axios.get('http://123.249.69.230/assign/admin/info/json')
+                .then((response) =>{
+                    let data_use = response.data;
+                    for (let i = 0; i < data_use.length; i++) {
+                        console.log(data_use[i]);
+                        this.formList.push(data_use[i]);
+                    }
+                    
+                });
+               
+                
+
+            },
+
+            saveOrUpdate() {
+                this.$refs["form"].validate((valid) => {
+                    if (valid) {
+
+                        if (!this.isUpdate) {
+                            this.formList.push(this.form)
+                            this.showChangeDialog = false
+                        } else {
+                            this.formList[this.updateIndex] = this.form
+                        }
+                        this.form = {
+                            stuNo: "",
+                            name: "",
+                            identity: "直博",
+                            teacher: "",
+                            date: "",
+                            roomNo: "",
+                            workNo: ""
+                        }
+                        this.showChangeDialog = false
+                    }
+
+                })
+                console.log(this.formList)
+                this.update()
+            },
+
+
+            cancel() {
+                this.showChangeDialog = false
+                this.form = {
+                    stuNo: "",
+                    name: "",
+                    identity: "直博",
+                    teacher: "",
+                    date: "",
+                    roomNo: "",
+                    workNo: ""
+                }
+            },
+            test() {
+                console.log(this.formList)
+            },
+            openSave() {
+                this.date = ""
+                this.showChangeDialog = true
+                this.isUpdate = false
+            },
+            handleEdit(index, row) {
+                this.updateIndex = index
+                this.showChangeDialog = true
+                this.isUpdate = true
+                this.date = row.date===""?"":moment(row.date)
+                this.form = row
+            },
+            handleDelete(index, row) {
+                this.formList.splice(index, 1)
+                this.tmpFormList=this.formList
+                this.update()
+            },
+            handleSelectionChange(val) {
+                this.dataListSelected = val
+            },
+            deleteMul() {
+                let tmp = this.tmpFormList.filter(e => {
+                    for (let i = 0; i < this.dataListSelected.length; i++) {
+                        if(this.dataListSelected[i].name==e.name&&this.dataListSelected[i].stuNo==e.stuNo) {
+                            console.log(e)
+                            return false
+                        }
+
+                    }
+                    return true
+                })
+                this.tmpFormList.splice(0,this.tmpFormList.length)
+
+                console.log(tmp)
+                this.tmpFormList.push(...tmp)
+
+
+                tmp = this.formList.filter(e => {
+                    for (let i = 0; i < this.dataListSelected.length; i++) {
+                        if(this.dataListSelected[i].name==e.name&&this.dataListSelected[i].stuNo==e.stuNo) {
+                            console.log(e)
+                            return false
+                        }
+
+                    }
+                    return true
+                })
+                this.formList.splice(0,this.formList.length)
+
+                console.log(tmp)
+                this.formList.push(...tmp)
+                this.update()
+            },
+            changeDate(e) {
+                this.form.date = moment(e).format('YYYY-MM-DD')
+            },
+            delFromExecl(persons){
+                console.log(this.formList)
+                console.log(persons)
+                let tmp = this.formList.filter(e => {
+                    for (let i = 0; i < persons.length; i++) {
+                        if(persons[i].name==e.name&&persons[i].stuNo==e.stuNo) {
+                            console.log(e)
+                            return false
+                        }
+
+                    }
+                    return true
+                })
+                this.formList.splice(0,this.formList.length)
+
+                console.log(tmp)
+                this.formList.push(...tmp)
+                this.update()
+            },
+            
+            addFromExecl(persons){
+                persons.forEach(p => {
+                    for (let i = 0; i < this.formList.length; i++) {
+                        if (p.name === this.formList[i].name && p.stuNo === this.formList[i].stuNo)
+                            return
+
+                    }
+                    let form = {
+                        stuNo: "",
+                        name: "",
+                        identity: "",
+                        teacher: "",
+                        date: "",
+                        roomNo: "",
+                        workNo: ""
+                    }
+                    for (let formKey in form) {
+                        if (formKey in p) {
+                            form[formKey] = p[formKey]
+                        }
+                    }
+                    this.formList.push(form)
+                })
+                this.update();
+                
+            },
+
+
+            changeFile(e,fn) {
+                // console.log('file: ', e.target.files[0]);
+                
+                let f = e.target.files[0],
+                    reader = new FileReader();
+                reader.readAsBinaryString(f)
+                reader.onload = ev => {
+                    try {
+                        var data = ev.target.result,
+                            workbook = XLSX.read(data, {
+                                type: 'binary'
+                            }), // 以二进制流方式读取得到整份excel表格对象
+                            persons = []; // 存储获取到的数据
+
+                    } catch (e) {
+                        console.log("文件格式不正确")
+                        console.log(e)
+                    }
+
+                    // 表格的表格范围，可用于判断表头是否数量是否正确
+                    var fromTo = '';
+                    // 遍历每张表读取
+                    for (var sheet in workbook.Sheets) {
+
+                        if (workbook.Sheets.hasOwnProperty(sheet)) {
+                            fromTo = workbook.Sheets[sheet]['!ref'];
+                            persons = persons.concat(XLSX.utils.sheet_to_json(workbook.Sheets[sheet]));
+                            // break; // 如果只取第一张表，就取消注释这行
+                        }
+                    }
+                    fn(persons)
+                    
+
+                }
+
+            },
+            
+            update(){
+                let tmp = this.formList
+                console.log(tmp)
+                var stunamelist=[];//姓名
+                var stunolist=[];//学号
+                var stuclslist = [];//身份类型
+                var stuteacherlist = [];//导师
+                var studatelist = [];//日期
+                var sturoomlist = [];//所在房间
+                var seatlist = [];//工位号
+
+
+                for(var i=0;i<this.formList.length;i++){
+                    stunamelist.push(this.formList[i]['name']);
+                    stunolist.push(this.formList[i]['stuNo']);
+                    stuclslist.push(this.formList[i]['identity']);
+                    stuteacherlist.push(this.formList[i]['teacher']);
+                    studatelist.push(this.formList[i]['date']);
+                    sturoomlist.push(this.formList[i]['roomNo']);
+                    seatlist.push(this.formList[i]['workNo']);
+
+                }
+                console.log(stunamelist);
+                try{
+                    $.ajaxSetup({
+                        data:{csrfmiddlewaretoken:'{{ csrf_token }}'}
+                    })
+                    $.ajax({
+                        type: "POST",
+                        url: "{% url 'assign:admin_info' %}",
+                        traditional: true,
+                        async:false,
+                        data:{sno:stunolist,sname:stunamelist,stype:stuclslist,steacher:stuteacherlist,sdate:studatelist},
+                        //data: "stuname=" + stuname + "&stuno=" + stuno + /*"&name=" + name +*/ "&sex=" + sex,
+                        //dataType: 'html',
+                        //contentType: "application/x-www-form-urlencoded; charset=utf-8",
+                    
+                        success: function(result) {
+                            result = JSON.parse(result);
+                            // if(result["status"] == 1){
+                            //     $('#myModal1').modal();
+                            // }
+                            
+                        },
+                        error: function(e){
+                        alert("提交失败");
+                    }
+                    });
+                }catch (e){
+                    console.log(e)
+                }
+
+            },
+
+
+            search(v) {
+
+                this.tmpFormList=this.formList.filter(e=>{
+                    for (let eKey in e) {
+                        if(e[eKey].indexOf(this.searchForm[eKey])<0)
+                            return false
+                    }
+                    return true
+                })
+                console.log(this.tmpFormList)
+            },
+
+        }
+    })
+
+    window.onload = function(){
+        get_user();
+    }
+
+    function get_user(){
+        var username = JSON.parse('{{ username|safe }}');
+        document.getElementById("username1").appendChild(document.createTextNode(username));
+        document.getElementById("username2").appendChild(document.createTextNode(username));
+    }
+
+    
+
+
+</script>
+</html>

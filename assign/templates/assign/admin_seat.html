@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+    <title>实验室工位管理系统</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/2.1.0/jquery.min.js"></script>
+    <!-- <script src="http://code.jquery.com/jquery-2.1.0.js"></script> -->
+    <script src="{% static 'assign/admin_seat_jquery-2.1.0.js' %}" ></script>
+    <!-- <script src="http://code.jquery.com/ui/1.10.4./jquery-ui.js"></script> -->
+    <script src="{% static 'assign/admin_seat_ui.js' %}"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <style>
+        #body {
+            background-color:rgb(235, 239, 240);
+            width: 100%;
+        }
+        #navigation-nav {
+            background-color:rgb(35, 45, 59);
+            height: 65px;
+            width: 100%;
+        }
+        #nav_container {
+            margin-left: 50px;
+        }
+        #nav-left > li > h2{
+            color:rgb(251, 253, 255);
+            width: 150px;
+        }
+        #nav-left > li > a{
+            color:rgb(251, 253, 255);
+            font-size: large;
+            width: 120px;
+            margin-top: 8px;
+        }
+        #nav-left > li > a:hover{
+            background-color:rgb(9, 22, 34);
+        }
+        #nav-left > li > a:visited{
+            background-color:rgb(9, 22, 34);
+        }
+        #nav-right {
+            float: right;
+            margin-top: 10px;
+        }
+        #nav-right > a {
+            color:rgb(251, 253, 255);
+        }
+        #main{
+            margin-top: 20px;
+            width: 100%;
+        }
+        #n1 {
+            padding-top: 5px;
+            padding-left: 5px;
+            text-align:center;
+        }
+        #l21 {
+            padding-top: 10px;
+        }
+        #l22 {
+            padding-top: 50px;
+        }
+        #btns{
+            text-align: center;
+        }
+        #btn{
+            background-color:rgb(35, 45, 59);
+            color:rgb(251, 253, 255);
+            margin-top: 30px;
+            width: 200px;
+        }
+    </style>
+</head>
+
+<body id="body">
+    <!-- 导航栏 -->
+    <nav id="navigation-nav">
+        <div class="container navigation" id="nav_container"> 
+            <div class="low">
+                <div class="col-xs-10">             
+                    <ul class="nav navbar-nav" id="nav-left">
+                        <li><h2>工位管理</h2></a></li>
+                        <li><a href="{% url 'assign:admin_index' %}">首页</a></li>
+                        <li><a href="{% url 'assign:search' %}">查询</a></li>
+                        <li><a href="{% url 'assign:admin_seat' %}">工位管理</a></li>
+                        <li><a href="{% url 'assign:admin_account' %}">账户管理</a></li>
+                        <li><a href="{% url 'assign:admin_fee' %}">计费管理</a></li>
+                        <li class="dropdown" id="nav-down">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <b class="caret"></b>
+                                学生管理
+                                
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="{% url 'assign:admin_info' %}">学生信息管理</a></li>
+                                <li><a href="{% url 'assign:admin_graduate' %}">毕业管理</a></li>
+                            </ul>
+                        </li>             
+                    </ul>
+                </div>
+                <div class="col-xs-2">
+                    <div class="dropdown"  id="nav-right">
+                        <a href="#" class="btn btn-lg dropdown-toggle" data-toggle="dropdown" class="form-inline" id="username1"> 
+                            <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu" role="menu"> 
+                            <li><a href="#"><span class="glyphicon glyphicon-user" id="username2"></span></a></li>
+                            <li class="divider"></li>
+                            <li><a href="{% url 'assign:person_info' %}">修改个人信息</a></li>
+                            <li><a href="{% url 'assign:logout' %}">退出登录</a></li>
+                        </ul>
+                    </div> 
+                </div>
+            </div>
+        </div>
+    </nav>
+	<div>
+        <input id="Mybutton" style="float:right" type="button" value="批量添加固定工位" style="margin-left:100px;" onclick="New_add1()" >
+		<input id="Mybutton" style="float:right" type="button" value="批量添加临时工位" style="margin-left:100px;" onclick="New_add2()" >
+		<input id="Mybutton" style="float:right" type="button" value="批量添加大门" style="margin-left:100px;" onclick="New_add3()" >
+		<input id="Mybutton" style="float:right" type="button"  value="重置" style="margin-left:100px;" onclick="New_add4()" >
+    </div>
+    <div class="container main" id="main">
+        <div class="row">
+            <div class="col-xs-2">
+                <div class="panel panel-info" style="margin-top:5px;height:700px;overflow:auto;">
+                    <input type="text" class="form-control" placeholder="Search" id="inputing">
+					<button onclick="send_info()">搜索</button>
+					<button type="button" id="add" style="margin-left:100px;" onclick="Reset()">重置</button>
+					<br />
+					查询类型:
+					<select onclick="set_search(this.value)">
+                        <option value="ids">按学生学号查询</option>
+                        <option value="names">按学生姓名查询</option>
+                        <option value="dicts">按导师姓名查询</option>
+                        <option value="types">按身份类型查询</option>
+                    </select>
+					<br />
+					排序方式:
+					<select  onclick="sort(this.value)">
+						 <option value="ids" >按学号排序</option>
+						 <option value="names" >按姓名排序</option>
+						 <option value="dicts" >按导师排序</option>
+						 <option value="types" >按身份类型排序</option>
+					</select>
+                    <div class="panel-heading">未分配学生名单</div>
+                    <table id="table" class="table table-striped table-bordered table-hover datatable">
+                        <thead id="tem">
+                            <tr>
+                                <th style="width:75px;">学号</th>
+                                <th style="width:75px;">姓名</th>
+                                <th style="width:75px;">身份类型</th>
+                                <th style="width:75px;">导师</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="col-xs-10">
+                <ul class="nav nav-tabs" id="ntabs1">               
+                </ul>
+                <div class="tab-content" id="ctabs1">
+                </div>
+            </div>
+        </div>
+        <!-- 一级模态框（Modal） -->
+        <div class="modal fade" id="myModal1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-body" style="text-align:center;font-size:large;">
+                        <h1 id="title">您想在此处添加什么？</h1>
+                        <input type="radio" name="loctype" id="type0" value="0" checked>固定工位
+                        <input type="radio" style="margin-left:40px;" name="loctype" id="type1" value="1">临时工位
+                        <input type="radio" style="margin-left:40px;" name="loctype" id="type2" value="2">大门
+                    </div>
+                    <div class="modal-footer">                                                                  
+                        <a href="" class="btn btn-primary btn-lg" onclick = "update()" data-dismiss="modal">确定</a>
+                        <a href="" class="btn btn-default btn-lg" data-dismiss="modal">返回</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 二级模态框（Modal） -->
+        <div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-body" style="text-align:center;"><h1 id="title">是否释放此位置？</h1></div>
+                    <div class="modal-footer">                                                                  
+                        <a href="" class="btn btn-primary btn-lg" onclick = "update()" data-dismiss="modal">确定</a>
+                        <a href="" class="btn btn-default btn-lg" data-dismiss="modal">返回</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 三级模态框（Modal） -->
+        <div class="modal fade" id="myModal3" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-body" style="text-align:center;"><h1 id="title">是否将此工位置为空闲工位？</h1></div>
+                    <div class="modal-footer">                                                                  
+                        <a href="" class="btn btn-primary btn-lg" onclick = "update()" data-dismiss="modal">确定</a>
+                        <a href="" class="btn btn-default btn-lg" data-dismiss="modal">返回</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- error模态框（Modal） -->
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-body" style="text-align:center;color:red;"><h1 id="title">提交失败</h1></div>
+                    <div class="modal-footer">                                                                  
+                        <a href="" class="btn btn-primary btn-lg" data-dismiss="modal">确定</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 模态框（Modal）end -->
+        <!-- error模态框（Modal） -->
+        <div class="modal fade" id="myModal4" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-body" style="text-align:center;color:red;"><h1 id="title">行列修改失败,可能会导致部分学生失去工位</h1></div>
+                    <div class="modal-footer">                                                                  
+                        <a href="" class="btn btn-primary btn-lg" data-dismiss="modal">确定</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 模态框（Modal）end -->
+        <!-- 删除实验室失败模态框（Modal） -->
+        <div class="modal fade" id="myModal5" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-body" style="text-align:center;color:red;"><h1 id="title">删除实验室失败</h1></div>
+                    <div class="modal-footer">                                                                  
+                        <a href="" class="btn btn-primary btn-lg" data-dismiss="modal">确定</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 模态框（Modal）end -->
+        <!-- 删除实验室成功模态框（Modal） -->
+        <div class="modal fade" id="myModal6" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-body" style="text-align:center;"><h1 id="title">删除实验室成功</h1></div>
+                    <div class="modal-footer">                                                                  
+                        <a href="{% url 'assign:admin_seat' %}" class="btn btn-primary btn-lg">确定</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 模态框（Modal）end -->
+    </div>
+
+    <script type="text/javascript">
+        function Init_table(list_student_info){
+            rownum = list_student_info.length;
+            for(var i = 0; i < list_student_info.length; i++){
+                var tr = document.createElement("tr");
+                tr.setAttribute('id', 'tr' + String(i));
+                var td1 = document.createElement("td");
+                td1.setAttribute('style','width:75px;height:30px;');
+                td1.style.border = '1px #cccccc solid';
+                td1.appendChild(document.createTextNode(list_student_info[i][0]));
+                var td2 = document.createElement("td");
+                td2.setAttribute('style','width:75px;height:30px;');
+                td2.style.border = '1px #cccccc solid';
+                td2.appendChild(document.createTextNode(list_student_info[i][1]));
+                var td3 = document.createElement("td");
+                td3.setAttribute('style','width:75px;height:30px;');
+                td3.style.border = '1px #cccccc solid';
+                td3.appendChild(document.createTextNode(list_student_info[i][2]));
+                var td4 = document.createElement("td");
+                td4.setAttribute('style','width:75px;height:30px;');
+                td4.style.border = '1px #cccccc solid';
+                td4.appendChild(document.createTextNode(list_student_info[i][3]));
+                tr.appendChild(td1);
+                tr.appendChild(td2);
+                tr.appendChild(td3);
+                tr.appendChild(td4);
+                document.getElementById("tbody").appendChild(tr);
+                            
+                var str = "#tr" + String(i);
+                $(str).draggable({
+                    helper: 'clone',                                        
+                    revert: 'invalid',
+                    appendTo:'body'
+                }); 
+            }
+        }
+		function Init_table_new(list_student_info){
+            rownum = list_student_info.length;
+            for(var i = 0; i < list_student_info.length; i++){
+                var tr = document.createElement("tr");
+                tr.setAttribute('id', 'tr' + String(i));
+                var td1 = document.createElement("td");
+                td1.setAttribute('style','width:75px;height:30px;');
+                td1.style.border = '1px #cccccc solid';
+                td1.appendChild(document.createTextNode(list_student_info[i][0]));
+                var td2 = document.createElement("td");
+                td2.setAttribute('style','width:75px;height:30px;');
+                td2.style.border = '1px #cccccc solid';
+                td2.appendChild(document.createTextNode(list_student_info[i][1]));
+                var td3 = document.createElement("td");
+                td3.setAttribute('style','width:75px;height:30px;');
+                td3.style.border = '1px #cccccc solid';
+                td3.appendChild(document.createTextNode(list_student_info[i][2]));
+                var td4 = document.createElement("td");
+                td4.setAttribute('style','width:75px;height:30px;');
+                td4.style.border = '1px #cccccc solid';
+                td4.appendChild(document.createTextNode(list_student_info[i][3]));
+                tr.appendChild(td1);
+                tr.appendChild(td2);
+                tr.appendChild(td3);
+                tr.appendChild(td4);
+                document.getElementById("tbody").appendChild(tr);
+                            
+                var str = "#tr" + String(i);
+                $(str).draggable({
+                    helper: 'clone',                                        
+                    revert: 'invalid',
+                    appendTo:'body'
+                }); 
+            }
+        }
+        window.onload = function(){
+            var list_lab_info = JSON.parse('{{ list_lab_info|safe }}');
+            var list_seat_info = JSON.parse('{{ list_seat_info|safe }}'); 
+            var list_student_info = JSON.parse('{{ list_student_info|safe }}');
+			mode = 0;
+            Init_table(list_student_info);
+            init_tab1(list_lab_info);
+            init_tabcontent1(list_lab_info);
+            
+            for(var num = 1; num <= list_lab_info.length; num++){
+                add(num);
+            }
+            get_user();
+        }
+
+        function init_tab1(list_lab_info){ 
+            var l = document.createElement("li");
+            l.setAttribute('class', 'active');
+            var a = document.createElement("a");
+            var e = '#add1';
+            a.setAttribute('href', e);
+            a.setAttribute('data-toggle', 'tab');
+            a.appendChild(document.createTextNode('添加实验室'));
+            l.appendChild(a);
+            document.getElementById("ntabs1").appendChild(l);
+
+            for(var i = 0; i < list_lab_info.length; i++){
+                var l = document.createElement("li");
+                var a = document.createElement("a");
+                var e = '#lab1' + String(i);
+                a.setAttribute('href', e);
+                a.setAttribute('data-toggle', 'tab');
+                a.appendChild(document.createTextNode('实验室' + String(list_lab_info[i][0])));
+                l.appendChild(a);
+                document.getElementById("ntabs1").appendChild(l);
+            }                                                     
+        }
+        function init_tabcontent1(list_lab_info){
+            var d1 = document.createElement("div");
+                d1.setAttribute('class', 'tab-pane fade in active');
+                d1.setAttribute('id', 'add1');
+                var str = ""
+                str += '<div class="low" id="l21">';
+                str +=        '<div class="text-center" id="main-left">'; 
+                str +=            '<form class="bs-example bs-example-form" role="form" style="float:left;display:flex;width:100%">';
+                str +=                '<div class="input-group">';
+                str +=                    '<span class="input-group-addon">实验室</span>';
+                str +=                    '<input type="text" class="form-control" value="" id="labid0">';
+                str +=                '</div>';
+                str +=                '<div class="input-group">';
+                str +=                    '<span class="input-group-addon">行</span>';
+                str +=                    '<input type="text" class="form-control" value="" id="row0">';
+                str +=                '</div>';
+                str +=                '<br>';
+                str +=                '<div class="input-group">';
+                str +=                    '<span class="input-group-addon">列</span>';
+                str +=                    '<input type="text" class="form-control" value="" id="col0">';
+                str +=                '</div>';
+                str +=                '<br>';
+                str +=                '<button type="button" class="btn btn-default" onclick="add(0)">确定</button>';
+                str +=                '<button type="button" class="btn btn-default" onclick="del(0)">删除</button>';
+                str +=            '</form>';
+                str +=        '</div>';
+                str +=    '</div>';
+                str +=    '<div class="low" id="l22">';
+                str +=        '<div class="panel panel-default">';
+                str +=            '<div class="panel-heading">工位布局</div>';  
+                str +=            '<div class="panel-body">';
+                str +=                '<div id="table0"></div>';
+                str +=            '</div>';    
+                str +=        '</div>';
+                str +=    '</div>';
+                d1.innerHTML = str;
+                document.getElementById("ctabs1").appendChild(d1);        
+            for(var i = 0; i < list_lab_info.length; i++){
+                var d1 = document.createElement("div");
+                d1.setAttribute('class', 'tab-pane fade');
+                d1.setAttribute('id', 'lab1' + String(i));
+                var str = ""
+                str += '<div class="low" id="l21">';
+                str +=        '<div class="text-center" id="main-left">'; 
+                str +=            '<form class="bs-example bs-example-form" role="form" style="float:left;display:flex;width:100%">';
+                str +=                '<div class="input-group">';
+                str +=                    '<span class="input-group-addon">实验室</span>';
+                str +=                    '<input type="text" class="form-control" value="';
+                str += String(list_lab_info[i][0]);
+                str += '" id= "labid';
+                str += String(i+1);
+                str += '">';
+                str +=                '</div>';
+                str +=                '<div class="input-group">';
+                str +=                    '<span class="input-group-addon">行</span>';
+                str +=                    '<input type="text" class="form-control" value="';
+                str += String(list_lab_info[i][1]);
+                str += '" id= "row';
+                str += String(i+1);
+                str += '">';
+                str +=                '</div>';
+                str +=                '<br>';
+                str +=                '<div class="input-group">';
+                str +=                    '<span class="input-group-addon">列</span>';
+                str +=                    '<input type="text" class="form-control" value="';
+                str += String(list_lab_info[i][2]);
+                str += '" id = "col';
+                str += String(i+1);
+                str += '">';
+                str +=                '</div>';
+                str +=                '<br>';
+                str +=                '<button type="button" class="btn btn-default" onclick="add(';
+                str += String(i+1);
+                str += ')">确定</button>';
+                str +=                '<button type="button" class="btn btn-default" onclick="del(';
+                str += String(i+1);
+                str += ')">删除</button>';
+                str +=            '</form>';
+                str +=        '</div>';
+                str +=    '</div>';
+                str +=    '<div class="low" id="l22">';
+                str +=        '<div class="panel panel-default">';
+                str +=            '<div class="panel-heading">';
+                str += String(list_lab_info[i][0]);
+                str += '工位布局</div>';  
+                str +=            '<div class="panel-body">';
+                str +=                '<div id="table';
+                str += String(i+1);
+                str += '"> </div>';
+                str +=            '</div>';    
+                str +=        '</div>';
+                str +=    '</div>';
+                d1.innerHTML = str;
+                document.getElementById("ctabs1").appendChild(d1);
+            }
+        }
+
+        //手动排座
+        var _row;
+        var _col;
+        var _labid;
+        var tablevalue;
+        var flagdict = new Array();
+        var infodict = new Array();
+        var localdict = new Array();
+        var rownum;
+        function add(count) { 
+            var dict_tname = JSON.parse('{{ dict_tname|safe }}');
+            var list_seat_info = JSON.parse('{{ list_seat_info|safe }}'); 
+
+            var row = document.getElementById("row"+String(count)).value;
+            var col = document.getElementById("col"+String(count)).value;
+            var labid = document.getElementById("labid"+String(count)).value;
+            
+            if(count == 0){
+                var info_send = ['0', '0', '0'];
+                info_send[0] = labid;
+                info_send[1] = row;
+                info_send[2] = col;
+                $.ajaxSetup({
+                    data:{csrfmiddlewaretoken:'{{ csrf_token }}'}
+                })
+                $.ajax({
+                    type: "POST",
+                    url: "{% url 'assign:admin_seat' %}",
+                    traditional: true,
+                    async:false,
+                    data:{actype:6,
+                        info: info_send},
+                    success: function(result) {
+                        result = JSON.parse(result);
+                        if(result["status"] == 0){
+                            $('#myModal').modal();
+                        }
+                        else if(result["status"] == 1){
+                            var str = "";
+                            var username = ["her","she","tmp","tmp2"];
+                            var k = 0;
+                            str += '<table align="center" border="1" >';
+                            for(var i = 0; i < row; i++) {
+                                str += '<tr>';
+                                for(var j = 0; j < col; j++) {
+                                    var s = "";
+                                    s = labid+i+j;
+                                    var list1 = ['0', '0', '0', '0', '0'];
+                                    var list2 = ['0', '0', '0'];
+                                    list2[0] = labid;
+                                    list2[1] = i;
+                                    list2[2] = j;
+                                    localdict[s] = list2;
+                                    infodict[s] = list1;
+                                    str += '<td height="100px" width="140px">';
+                                    str += '<button type="button" class="list-group-item';
+                                    str += '"  data-whatever="'
+                                    str += "修改"
+                                    str += '" id = "'
+                                    str = str+labid+i+j;//加入id
+                                    str += '" onclick = "editInfo(this,' + String(i) + ',' + String(j) + ',' + String(labid) + ')';
+                                    if(count > 0){
+                                        var flag = 0;
+                                        for(var k1 = 0; k1 < list_seat_info[count-1].length; k1++){
+                                            if(list_seat_info[count-1][k1][0] == i && list_seat_info[count-1][k1][1] == j){
+                                                if(list_seat_info[count-1][k1][3] == 0){
+                                                    str += '" style = "background-color: yellow; height:100px; white-space: pre-line; font-size:12px;">';
+                                                }
+                                                else if(list_seat_info[count-1][k1][3] == 1){
+                                                    str += '" style = "background-color: orange; height:100px; white-space: pre-line; font-size:12px;">';
+                                                }
+                                                else if(list_seat_info[count-1][k1][3] == 2){
+                                                    str += '" style = "background-color: red; height:100px; white-space: pre-line; font-size:12px;">';
+                                                    infodict[s][4] = list_seat_info[count-1][k1][3];
+                                                    flagdict[s] = 2;
+                                                    str += "大门";
+                                                }
+
+                                                if(list_seat_info[count-1][k1][4] == 0){
+                                                    flagdict[s] = 2;
+                                                    infodict[s][4] = list_seat_info[count-1][k1][3];
+                                                    if(list_seat_info[count-1][k1][3] == 0){
+                                                        str += "固定工位(空)";
+                                                    }
+                                                    else if(list_seat_info[count-1][k1][3] == 1){
+                                                        str += "临时工位(空)";
+                                                    }
+                                                }
+                                                else if(list_seat_info[count-1][k1][4] == 1){
+                                                        flagdict[s] = 3;
+                                                        infodict[s][0] = list_seat_info[count-1][k1][6];
+                                                        infodict[s][1] = list_seat_info[count-1][k1][5];
+                                                        infodict[s][2] = list_seat_info[count-1][k1][7];  
+                                                        infodict[s][3] = dict_tname[list_seat_info[count-1][k1][8]];
+                                                        infodict[s][4] = list_seat_info[count-1][k1][3];
+                                                        str += "姓名："+infodict[s][1]+"\n"+"学号："+infodict[s][0]+"\n"+"身份："+infodict[s][2]+"\n"+"导师："+infodict[s][3];
+                                                }
+                                                flag = 1;
+                                                break;
+                                            }
+                                        }
+                                        if(flag != 1){
+                                            flagdict[s] = 1;
+                                            str += '" style = "height:100px; white-space: pre-line; font-size:12px;">';
+                                        }
+                                    }
+                                    else{
+                                        flagdict[s] = 1;
+                                        str += '" style = "height:100px; white-space: pre-line; font-size:12px;">';
+                                    }
+                                    str += '</button>';
+                                    str += '</td>';
+                                    
+                                    k = k+1;
+                                }
+                                str += '</tr>';
+                            }
+                            str += '</table>';
+                            var divobj = document.getElementById("table"+String(count));
+                            divobj.innerHTML = str;
+                            for(var i = 0; i < row; i++){
+                                for(var j = 0; j < col; j++){
+                                    var bu = ""
+                                    bu = bu + "#" +labid+i+j;
+                                    $(bu).droppable({   
+                                        over: function (e,source) {
+                                            thisbutton = $(this).attr("id");
+
+                                            if(infodict[thisbutton][4] != 2 &&(flagdict[thisbutton] == 2 || flagdict[thisbutton] == 3)){
+                                                $(this).css('background', 'gray');
+                                            }
+                                        },
+                                        out: function (e, source) {
+                                            thisbutton = $(this).attr("id");
+                                            if(infodict[thisbutton][4] != 2){
+                                                if(flagdict[thisbutton] == 2 || flagdict[thisbutton] == 3){
+                                                    if(infodict[thisbutton][4] == 1){
+                                                        $(this).css('background', 'orange');
+                                                    }
+                                                    else{
+                                                        $(this).css('background', 'yellow');
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        drop: function( event, ui ) {
+                                            thisbutton = $(this).attr("id");
+                                            if(flagdict[thisbutton] == 2 && infodict[thisbutton][4] != 2){
+                                                var info_send = ['0', '0', '0', '0'];
+                                                info_send[0] = localdict[thisbutton][0];
+                                                info_send[1] = localdict[thisbutton][1];
+                                                info_send[2] = localdict[thisbutton][2];
+                                                info_send[3] = $(ui.draggable).children().eq(0).html();
+                                                $.ajaxSetup({
+                                                    data:{csrfmiddlewaretoken:'{{ csrf_token }}'}
+                                                })
+                                                $.ajax({
+                                                    type: "POST",
+                                                    url: "{% url 'assign:admin_seat' %}",
+                                                    traditional: true,
+                                                    async:false,
+                                                    data:{
+                                                        actype: 2,
+                                                        info: info_send
+                                                    },
+                                                    success: function(result) {
+                                                        result = JSON.parse(result);
+                                                        if(result["status"] == 0){
+                                                            $('#myModal').modal();
+                                                        }
+                                                        else{
+                                                            infodict[thisbutton][0] = $(ui.draggable).children().eq(0).html();
+                                                            infodict[thisbutton][1] = $(ui.draggable).children().eq(1).html();
+                                                            infodict[thisbutton][2] = $(ui.draggable).children().eq(2).html();
+                                                            infodict[thisbutton][3] = $(ui.draggable).children().eq(3).html();
+                                                            document.getElementById(thisbutton).innerHTML =  "姓名："+infodict[thisbutton][1]+"\n"+"学号："+infodict[thisbutton][0]+"\n"+"身份："+infodict[thisbutton][2]+"\n"+"导师："+infodict[thisbutton][3];
+                                                            flagdict[thisbutton] = flagdict[thisbutton] + 1;
+
+                                                            var tbody1 = document.getElementById("tbody");
+                                                            var tr = document.getElementById($(ui.draggable).attr("id"));
+                                                            tbody1.removeChild(tr);
+                                                        }                    
+                                                    },
+                                                    error: function(e){
+                                                        $('#myModal').modal();
+                                                    }
+                                                });
+                                                if(infodict[thisbutton][4] == 0){
+                                                    $(this).css('background', 'yellow');
+                                                }
+                                                else if(infodict[thisbutton][4] == 1){
+                                                    $(this).css('background', 'orange');
+                                                }
+                                            }
+                                            else if(flagdict[thisbutton] == 3){
+                                                var info_send = ['0', '0', '0', '0', '0'];
+                                                info_send[0] = localdict[thisbutton][0];
+                                                info_send[1] = localdict[thisbutton][1];
+                                                info_send[2] = localdict[thisbutton][2];
+                                                info_send[3] = temp1;
+                                                info_send[4] =  $(ui.draggable).children().eq(0).html();
+                                                $.ajaxSetup({
+                                                    data:{csrfmiddlewaretoken:'{{ csrf_token }}'}
+                                                })
+                                                $.ajax({
+                                                    type: "POST",
+                                                    url: "{% url 'assign:admin_seat' %}",
+                                                    traditional: true,
+                                                    async:false,
+                                                    data:{
+                                                        actype: 4,
+                                                        info: info_send
+                                                    },
+                                                    success: function(result) {
+                                                        result = JSON.parse(result);
+                                                        if(result["status"] == 0){
+                                                            $('#myModal').modal();
+                                                        }
+                                                        else{
+                                                            var temp1 = infodict[thisbutton][0];
+                                                            var temp2 = infodict[thisbutton][1];
+                                                            var temp3 = infodict[thisbutton][2];
+                                                            var temp4 = infodict[thisbutton][3];
+                                                            infodict[thisbutton][0] = $(ui.draggable).children().eq(0).html();
+                                                            infodict[thisbutton][1] = $(ui.draggable).children().eq(1).html();
+                                                            infodict[thisbutton][2] = $(ui.draggable).children().eq(2).html();
+                                                            infodict[thisbutton][3] = $(ui.draggable).children().eq(3).html();
+                                                            $(ui.draggable).children().eq(0).html(temp1);
+                                                            $(ui.draggable).children().eq(1).html(temp2);
+                                                            $(ui.draggable).children().eq(2).html(temp3);
+                                                            $(ui.draggable).children().eq(3).html(temp4);
+                                                            document.getElementById(thisbutton).innerHTML =  "姓名："+infodict[thisbutton][1]+"\n"+"学号："+infodict[thisbutton][0]+"\n"+"身份："+infodict[thisbutton][2]+"\n"+"导师："+infodict[thisbutton][3];
+                                                            var tr = document.getElementById($(ui.draggable).attr("id"));
+                                                            tr.style.background = "yellow";
+                                                        }                    
+                                                    },
+                                                    error: function(e){
+                                                        $('#myModal').modal();
+                                                    }
+                                                });
+                                                if(infodict[thisbutton][4] == 0){
+                                                    $(this).css('background', 'yellow');
+                                                }
+                                                else if(infodict[thisbutton][4] == 1){
+                                                    $(this).css('background', 'orange');
+                                                } ; 
+                                            } 
+                                        }
+                                    });
+                                }
+                            }
+                        }                    
+                    },
+                    error: function(e){
+                        $('#myModal').modal();
+                    }
+                })
+            }
+            else{
+                var info_send = ['0', '0', '0'];
+                info_send[0] = labid;
+                info_send[1] = row;
+                info_send[2] = col;
+                $.ajaxSetup({
+                    data:{csrfmiddlewaretoken:'{{ csrf_token }}'}
+                })
+                $.ajax({
+                    type: "POST",
+                    url: "{% url 'assign:admin_seat' %}",
+                    traditional: true,
+                    async:false,
+                    data:{actype:5,
+                        info: info_send},
+                    success: function(result) {
+                        result = JSON.parse(result);
+                        if(result["status"] == 0){
+                            $('#myModal4').modal();
+                        }
+                        else if(result["status"] == 1){
+                            var str = "";
+                            var username = ["her","she","tmp","tmp2"];
+                            var k = 0;
+                            str += '<table align="center" border="1" >';
+                            for(var i = 0; i < row; i++) {
+                                str += '<tr>';
+                                for(var j = 0; j < col; j++) {
+                                    var s = "";
+                                    s = labid+i+j;
+                                    var list1 = ['0', '0', '0', '0', '0'];
+                                    var list2 = ['0', '0', '0'];
+                                    list2[0] = labid;
+                                    list2[1] = i;
+                                    list2[2] = j;
+                                    localdict[s] = list2;
+                                    infodict[s] = list1;
+                                    str += '<td height="100px" width="140px">';
+                                    str += '<button type="button" class="list-group-item';
+                                    str += '"  data-whatever="'
+                                    str += "修改"
+                                    str += '" id = "'
+                                    str = str+labid+i+j;//加入id
+                                    str += '" onclick = "editInfo(this,' + String(i) + ',' + String(j) + ',' + String(labid) + ')';
+                                    if(count > 0){
+                                        var flag = 0;
+                                        for(var k1 = 0; k1 < list_seat_info[count-1].length; k1++){
+                                            if(list_seat_info[count-1][k1][0] == i && list_seat_info[count-1][k1][1] == j){
+                                                if(list_seat_info[count-1][k1][3] == 0){
+                                                    str += '" style = "background-color: yellow; height:100px; white-space: pre-line; font-size:12px;">';
+                                                }
+                                                else if(list_seat_info[count-1][k1][3] == 1){
+                                                    str += '" style = "background-color: orange; height:100px; white-space: pre-line; font-size:12px;">';
+                                                }
+                                                else if(list_seat_info[count-1][k1][3] == 2){
+                                                    str += '" style = "background-color: red; height:100px; white-space: pre-line; font-size:12px;">';
+                                                    infodict[s][4] = list_seat_info[count-1][k1][3];
+                                                    flagdict[s] = 2;
+                                                    str += "大门";
+                                                }
+
+                                                if(list_seat_info[count-1][k1][4] == 0){
+                                                    flagdict[s] = 2;
+                                                    infodict[s][4] = list_seat_info[count-1][k1][3];
+                                                    if(list_seat_info[count-1][k1][3] == 0){
+                                                        str += "固定工位(空)";
+                                                    }
+                                                    else if(list_seat_info[count-1][k1][3] == 1){
+                                                        str += "临时工位(空)";
+                                                    }
+                                                }
+                                                else if(list_seat_info[count-1][k1][4] == 1){
+                                                        flagdict[s] = 3;
+                                                        infodict[s][0] = list_seat_info[count-1][k1][6];
+                                                        infodict[s][1] = list_seat_info[count-1][k1][5];
+                                                        infodict[s][2] = list_seat_info[count-1][k1][7];  
+                                                        infodict[s][3] = dict_tname[list_seat_info[count-1][k1][8]];
+                                                        infodict[s][4] = list_seat_info[count-1][k1][3];
+                                                        str += "姓名："+infodict[s][1]+"\n"+"学号："+infodict[s][0]+"\n"+"身份："+infodict[s][2]+"\n"+"导师："+infodict[s][3];
+                                                }
+                                                flag = 1;
+                                                break;
+                                            }
+                                        }
+                                        if(flag != 1){
+                                            flagdict[s] = 1;
+                                            str += '" style = "height:100px; white-space: pre-line; font-size:12px;">';
+                                        }
+                                    }
+                                    else{
+                                        flagdict[s] = 1;
+                                        str += '" style = "height:100px; white-space: pre-line; font-size:12px;">';
+                                    }
+                                    str += '</button>';
+                                    str += '</td>';
+                                    
+                                    k = k+1;
+                                }
+                                str += '</tr>';
+                            }
+                            str += '</table>';
+                            var divobj = document.getElementById("table"+String(count));
+                            divobj.innerHTML = str;
+                            for(var i = 0; i < row; i++){
+                                for(var j = 0; j < col; j++){
+                                    var bu = ""
+                                    bu = bu + "#" +labid+i+j;
+                                    $(bu).droppable({   
+                                        over: function (e,source) {
+                                            thisbutton = $(this).attr("id");
+
+                                            if(infodict[thisbutton][4] != 2 &&(flagdict[thisbutton] == 2 || flagdict[thisbutton] == 3)){
+                                                $(this).css('background', 'gray');
+                                            }
+                                        },
+                                        out: function (e, source) {
+                                            thisbutton = $(this).attr("id");
+                                            if(infodict[thisbutton][4] != 2){
+                                                if(flagdict[thisbutton] == 2 || flagdict[thisbutton] == 3){
+                                                    if(infodict[thisbutton][4] == 1){
+                                                        $(this).css('background', 'orange');
+                                                    }
+                                                    else{
+                                                        $(this).css('background', 'yellow');
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        drop: function( event, ui ) {
+                                            thisbutton = $(this).attr("id");
+                                            if(flagdict[thisbutton] == 2 && infodict[thisbutton][4] != 2){
+                                                var info_send = ['0', '0', '0', '0'];
+                                                info_send[0] = localdict[thisbutton][0];
+                                                info_send[1] = localdict[thisbutton][1];
+                                                info_send[2] = localdict[thisbutton][2];
+                                                info_send[3] = $(ui.draggable).children().eq(0).html();
+                                                $.ajaxSetup({
+                                                    data:{csrfmiddlewaretoken:'{{ csrf_token }}'}
+                                                })
+                                                $.ajax({
+                                                    type: "POST",
+                                                    url: "{% url 'assign:admin_seat' %}",
+                                                    traditional: true,
+                                                    async:false,
+                                                    data:{
+                                                        actype: 2,
+                                                        info: info_send
+                                                    },
+                                                    success: function(result) {
+                                                        result = JSON.parse(result);
+                                                        if(result["status"] == 0){
+                                                            $('#myModal').modal();
+                                                        }
+                                                        else{
+                                                            infodict[thisbutton][0] = $(ui.draggable).children().eq(0).html();
+                                                            infodict[thisbutton][1] = $(ui.draggable).children().eq(1).html();
+                                                            infodict[thisbutton][2] = $(ui.draggable).children().eq(2).html();
+                                                            infodict[thisbutton][3] = $(ui.draggable).children().eq(3).html();
+                                                            document.getElementById(thisbutton).innerHTML =  "姓名："+infodict[thisbutton][1]+"\n"+"学号："+infodict[thisbutton][0]+"\n"+"身份："+infodict[thisbutton][2]+"\n"+"导师："+infodict[thisbutton][3];
+                                                            flagdict[thisbutton] = flagdict[thisbutton] + 1;
+
+                                                            var tbody1 = document.getElementById("tbody");
+                                                            var tr = document.getElementById($(ui.draggable).attr("id"));
+                                                            tbody1.removeChild(tr);
+                                                        }                    
+                                                    },
+                                                    error: function(e){
+                                                        $('#myModal').modal();
+                                                    }
+                                                });
+                                                if(infodict[thisbutton][4] == 0){
+                                                    $(this).css('background', 'yellow');
+                                                }
+                                                else if(infodict[thisbutton][4] == 1){
+                                                    $(this).css('background', 'orange');
+                                                }
+                                            }
+                                            else if(flagdict[thisbutton] == 3){
+                                                var info_send = ['0', '0', '0', '0', '0'];
+                                                info_send[0] = localdict[thisbutton][0];
+                                                info_send[1] = localdict[thisbutton][1];
+                                                info_send[2] = localdict[thisbutton][2];
+                                                info_send[3] = temp1;
+                                                info_send[4] = $(ui.draggable).children().eq(0).html();;
+                                                $.ajaxSetup({
+                                                    data:{csrfmiddlewaretoken:'{{ csrf_token }}'}
+                                                })
+                                                $.ajax({
+                                                    type: "POST",
+                                                    url: "{% url 'assign:admin_seat' %}",
+                                                    traditional: true,
+                                                    async:false,
+                                                    data:{
+                                                        actype: 4,
+                                                        info: info_send
+                                                    },
+                                                    success: function(result) {
+                                                        result = JSON.parse(result);
+                                                        if(result["status"] == 0){
+                                                            $('#myModal').modal();
+                                                        }
+                                                        else{
+                                                            var temp1 = infodict[thisbutton][0];
+                                                            var temp2 = infodict[thisbutton][1];
+                                                            var temp3 = infodict[thisbutton][2];
+                                                            var temp4 = infodict[thisbutton][3];
+                                                            infodict[thisbutton][0] = $(ui.draggable).children().eq(0).html();
+                                                            infodict[thisbutton][1] = $(ui.draggable).children().eq(1).html();
+                                                            infodict[thisbutton][2] = $(ui.draggable).children().eq(2).html();
+                                                            infodict[thisbutton][3] = $(ui.draggable).children().eq(3).html();
+                                                            $(ui.draggable).children().eq(0).html(temp1);
+                                                            $(ui.draggable).children().eq(1).html(temp2);
+                                                            $(ui.draggable).children().eq(2).html(temp3);
+                                                            $(ui.draggable).children().eq(3).html(temp4);
+                                                            document.getElementById(thisbutton).innerHTML =  "姓名："+infodict[thisbutton][1]+"\n"+"学号："+infodict[thisbutton][0]+"\n"+"身份："+infodict[thisbutton][2]+"\n"+"导师："+infodict[thisbutton][3];
+                                                            var tr = document.getElementById($(ui.draggable).attr("id"));
+                                                            tr.style.background = "yellow";
+                                                        }                    
+                                                    },
+                                                    error: function(e){
+                                                        $('#myModal').modal();
+                                                    }
+                                                });
+                                                if(infodict[thisbutton][4] == 0){
+                                                    $(this).css('background', 'yellow');
+                                                }
+                                                else if(infodict[thisbutton][4] == 1){
+                                                    $(this).css('background', 'orange');
+                                                } ; 
+                                            } 
+                                        }
+                                    });
+                                }
+                            }
+                        }                    
+                    },
+                    error: function(e){
+                        $('#myModal').modal();
+                    }
+                })
+            }          
+        }
+        //删除实验室
+        function del(count){
+            var labid = document.getElementById("labid"+String(count)).value;
+            var row = document.getElementById("row"+String(count)).value;
+            var col = document.getElementById("col"+String(count)).value;
+            var info_send = ['0', '0', '0'];
+            info_send[0] = labid;
+            info_send[1] = row;
+            info_send[2] = col;
+            $.ajaxSetup({
+                    data:{csrfmiddlewaretoken:'{{ csrf_token }}'}
+                })
+                $.ajax({
+                    type: "POST",
+                    url: "{% url 'assign:admin_seat' %}",
+                    traditional: true,
+                    async:false,
+                    data:{
+                        actype: 7,
+                        info: info_send
+                    },
+                    success: function(result) {
+                        result = JSON.parse(result);
+                        if(result["status"] == 0){
+                            $('#myModal5').modal();
+                        } 
+                        else{
+                            $('#myModal6').modal();
+                        }                   
+                    },
+                    error: function(e){
+                        $('#myModal5').modal();
+                    }
+                });
+        } 
+        //调用此方法触发模态框
+        function editInfo(obj, i, j, labid) {
+            var id = $(obj).attr("id");
+            tablevalue = id;
+            _row = i;
+            _col = j;
+            _labid = labid;
+            
+            if(flagdict[id] == 1){
+                if (mode == 0) $('#myModal1').modal();
+				else update();
+            }
+            else if(flagdict[id] == 2){
+                $('#myModal2').modal();
+            }
+            else{
+                $('#myModal3').modal();
+            }            
+        }
+        //提交更改
+        function update() {
+            var list_lab_info = JSON.parse('{{ list_lab_info|safe }}');
+            var list_seat_info = JSON.parse('{{ list_seat_info|safe }}');
+            var dict_tname = JSON.parse('{{ dict_tname|safe }}'); 
+            if (flagdict[tablevalue] == 1) {
+                //获取模态框数据
+				if (mode == 0) {
+					var loct = $('input:radio[name="loctype"]:checked').val();
+					if (loct == 0) {
+						document.getElementById(tablevalue).innerHTML = "固定工位(空)";
+						document.getElementById(tablevalue).style.background = "yellow";
+						infodict[tablevalue][4] = '0';
+					}
+					else if (loct == 1) {
+						document.getElementById(tablevalue).innerHTML = "临时工位(空)";
+						document.getElementById(tablevalue).style.background = "orange";
+						infodict[tablevalue][4] = '1';
+					}
+					else {
+						document.getElementById(tablevalue).innerHTML = "大门";
+						document.getElementById(tablevalue).style.background = "red";
+						infodict[tablevalue][4] = '2';
+					}
+				}
+				else {
+					if (mode == 1) {
+						document.getElementById(tablevalue).innerHTML = "固定工位(空)";
+						document.getElementById(tablevalue).style.background = "yellow";
+						infodict[tablevalue][4] = '0';
+					}
+					else if (mode == 2) {
+						document.getElementById(tablevalue).innerHTML = "临时工位(空)";
+						document.getElementById(tablevalue).style.background = "orange";
+						infodict[tablevalue][4] = '1';
+					}
+					else {
+						document.getElementById(tablevalue).innerHTML = "大门";
+						document.getElementById(tablevalue).style.background = "red";
+						infodict[tablevalue][4] = '2';
+					}
+				}
+                flagdict[tablevalue] = flagdict[tablevalue] + 1;
+
+                var info_send = ['0', '0', '0', '0'];
+                info_send[0] = _labid;
+                info_send[1] = _row;
+                info_send[2] = _col;
+                info_send[3] = infodict[tablevalue][4];
+                $.ajaxSetup({
+                    data:{csrfmiddlewaretoken:'{{ csrf_token }}'}
+                })
+                $.ajax({
+                    type: "POST",
+                    url: "/assign/admin/seat/",
+                    traditional: true,
+                    async: false,
+                    data: {
+                        actype: 0,
+                        info: info_send
+                    },
+                    success: function (result) {
+                        result = JSON.parse(result);
+                        if (result["status"] == 0) {
+                            $('#myModal').modal();
+                        }
+                    },
+                    error: function (e) {
+                        $('#myModal').modal();
+                    }
+                });
+            }
+            else if(flagdict[tablevalue] == 2){
+                document.getElementById(tablevalue).innerHTML = "";
+                document.getElementById(tablevalue).style.background = "none";
+                flagdict[tablevalue] = flagdict[tablevalue] - 1;
+                var info_send = ['0', '0', '0'];
+                info_send[0] = _labid;
+                info_send[1] = _row;
+                info_send[2] = _col;
+                $.ajaxSetup({
+                    data:{csrfmiddlewaretoken:'{{ csrf_token }}'}
+                })
+                $.ajax({
+                    type: "POST",
+                    url: "{% url 'assign:admin_seat' %}",
+                    traditional: true,
+                    async:false,
+                    data:{
+                        actype: 1,
+                        info: info_send
+                    },
+                    success: function(result) {
+                        result = JSON.parse(result);
+                        if(result["status"] == 0){
+                            $('#myModal').modal();
+                        }                    
+                    },
+                    error: function(e){
+                        $('#myModal').modal();
+                    }
+                });
+            }
+            else{
+                var tr = document.createElement("tr");
+                tr.setAttribute('id', 'tr' + String(rownum));
+                tr.style.background = "yellow";
+                var td1 = document.createElement("td");
+                td1.setAttribute('style','width:100px;height:30px;');
+                td1.style.border = '1px #cccccc solid';
+                td1.appendChild(document.createTextNode(infodict[tablevalue][0]));
+                var td2 = document.createElement("td");
+                td2.setAttribute('style','width:100px;height:30px;');
+                td2.style.border = '1px #cccccc solid';
+                td2.appendChild(document.createTextNode(infodict[tablevalue][1]));
+                var td3 = document.createElement("td");
+                td3.setAttribute('style','width:100px;height:30px;');
+                td3.style.border = '1px #cccccc solid';
+                td3.appendChild(document.createTextNode(infodict[tablevalue][2]));
+                var td4 = document.createElement("td");
+                td4.setAttribute('style','width:100px;height:30px;');
+                td4.style.border = '1px #cccccc solid';
+                td4.appendChild(document.createTextNode(infodict[tablevalue][3]));
+                tr.appendChild(td1);
+                tr.appendChild(td2);
+                tr.appendChild(td3);
+                tr.appendChild(td4);
+                document.getElementById("tbody").insertBefore(tr, document.getElementById("tbody").rows[0]);
+
+                if(infodict[tablevalue][4] == '0'){
+                    document.getElementById(tablevalue).innerHTML = "固定工位(空)";
+                }
+                else if(infodict[tablevalue][4] == '1'){
+                    document.getElementById(tablevalue).innerHTML = "临时工位(空)";
+                }
+
+                var str = "#tr" + String(rownum);
+                $(str).draggable({
+                    helper: 'clone',                                        
+                    revert: 'invalid',
+                    appendTo:'body'
+                }); 
+
+                flagdict[tablevalue] = flagdict[tablevalue] - 1;
+                rownum = rownum + 1;
+
+                var info_send = ['0','0','0','0'];
+                info_send[0] = _labid;
+                info_send[1] = _row;
+                info_send[2] = _col;
+                info_send[3] = infodict[tablevalue][0];
+                $.ajaxSetup({
+                    data:{csrfmiddlewaretoken:'{{ csrf_token }}'}
+                })
+                $.ajax({
+                    type: "POST",
+                    url: "{% url 'assign:admin_seat' %}",
+                    traditional: true,
+                    async:false,
+                    data:{
+                        actype: 3,
+                        info: info_send
+                    },
+                    success: function(result) {
+                        result = JSON.parse(result);
+                        if(result["status"] == 0){
+                            $('#myModal').modal();
+                        }                    
+                    },
+                    error: function(e){
+                        $('#myModal').modal();
+                    }
+                });
+            }           
+        }
+
+        function get_user(){
+            var username = JSON.parse('{{ username|safe }}');
+            document.getElementById("username1").appendChild(document.createTextNode(username));
+            document.getElementById("username2").appendChild(document.createTextNode(username));
+        }
+		var new_list_student_info;
+		function sort(value) {
+			if (value=="ids") {
+                $.ajax({
+                    type: "POST",
+                    url: "{% url 'assign:admin_seat' %}",
+                    traditional: true,
+                    async:false,
+                    data:{
+                        actype: 8,
+                    },
+                    success: function(result) {
+                        result = JSON.parse(result);
+                        if(result["status"] == 0){
+                        }
+                        else{
+							new_list_student_info = result["new_list_student_info"];
+							//$("#table  tr:not(:first)").empty("");
+							$("#table  tbody").empty("");
+							Init_table(new_list_student_info);
+                        }                    
+                    }
+                    });
+			}
+			else if (value=="names") {
+                $.ajax({
+                    type: "POST",
+                    url: "{% url 'assign:admin_seat' %}",
+                    traditional: true,
+                    async:false,
+                    data:{
+                        actype: 9,
+                    },
+                    success: function(result) {
+                        result = JSON.parse(result);
+                        if(result["status"] == 0){
+                        }
+                        else{
+							new_list_student_info = result["new_list_student_info"];
+							//$("#table  tr:not(:first)").empty("");
+							$("#table  tbody").empty("");
+							Init_table(new_list_student_info);
+                        }                    
+                    }
+                    });
+			}
+			else if (value=="dicts") {
+                $.ajax({
+                    type: "POST",
+                    url: "{% url 'assign:admin_seat' %}",
+                    traditional: true,
+                    async:false,
+                    data:{
+                        actype: 10,
+                    },
+                    success: function(result) {
+                        result = JSON.parse(result);
+                        if(result["status"] == 0){
+                        }
+                        else{
+							new_list_student_info = result["new_list_student_info"];
+							//$("#table  tr:not(:first)").empty("");
+							$("#table  tbody").empty("");
+							Init_table(new_list_student_info);
+                        }                    
+                    }
+                    });
+			}
+			else if (value=="types") {
+                $.ajax({
+                    type: "POST",
+                    url: "{% url 'assign:admin_seat' %}",
+                    traditional: true,
+                    async:false,
+                    data:{
+                        actype: 11,
+                    },
+                    success: function(result) {
+                        result = JSON.parse(result);
+                        if(result["status"] == 0){
+                        }
+                        else{
+							new_list_student_info = result["new_list_student_info"];
+							//$("#table  tr:not(:first)").empty("");
+							$("#table  tbody").empty("");
+							Init_table(new_list_student_info);
+                        }                    
+                    }
+                    });
+			}
+		}
+		var _stype;
+		var _key;
+		function set_search(s) {
+			if (s=="ids") _stype = 1;
+			else if (s=="names") _stype = 2;
+			else if (s=="dicts") _stype = 3;
+			else if (s=="types") _stype = 4;
+		}
+		function send_info(){
+			_key = document.getElementById("inputing").value;
+			$.ajax({
+				url:"{% url 'assign:admin_seat' %}",
+				type: "POST",
+				data: {key: _key,
+						actype :12,
+					   stype: _stype},
+				success: function(data){
+					data = JSON.parse(data); 
+					if(data["status"] == 0){
+						//$("#table  tr:not(:first)").empty("");
+						$("#table  tbody").empty("");				
+                    }
+                    else{
+						new_list_student_info = data["new_list_student_info"];
+						//$("#table  tr:not(:first)").empty("");
+						$("#table  tbody").empty("");
+						Init_table(new_list_student_info);
+                    }     
+				}
+			});
+		}
+		function Reset() {
+			$.ajax({
+                    type: "POST",
+                    url: "{% url 'assign:admin_seat' %}",
+                    traditional: true,
+                    async:false,
+                    data:{
+                        actype: 13,
+                    },
+                    success: function(result) {
+                        result = JSON.parse(result);
+                        if(result["status"] == 0){
+                        }
+                        else{
+							new_list_student_info = result["new_list_student_info"];
+							//$("#table  tr:not(:first)").empty("");
+							$("#table  tbody").empty("");
+							Init_table(new_list_student_info);
+                        }                    
+                    }
+                    });
+		}
+		var mode = 0;
+        function New_add1() {
+            mode = 1;
+        }
+		function New_add2() {
+            mode = 2;
+        }
+		function New_add3() {
+            mode = 3;
+        }
+		function New_add4() {
+            mode = 0;
+        }
+    </script>
+</body>

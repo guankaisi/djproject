@@ -1,0 +1,33 @@
+#log-in {
+    height: 700px;
+    margin: auto;
+    background-color: rgb(94, 185, 245);
+    background-position: center 0;    
+    background-repeat: no-repeat;    
+    background-attachment: fixed;    
+    background-size: cover;    
+    -webkit-background-size: cover;    
+    -o-background-size: cover;    
+    -moz-background-size: cover;    
+    -ms-background-size: cover;
+}
+
+#title {
+    width: auto;
+    text-align: center;
+    font-size: 100px;
+    margin-top: 200px;
+}
+
+.input {
+    margin: auto;
+    width: 50%;
+    height: 50px;
+    margin-top: 100px;
+}
+
+#button {
+    background-color: rgb(35, 45, 59); 
+    margin-top: 50px;
+    width: 200px;
+}

@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>计费</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <style>
+    #body {
+        background-color:rgb(235, 239, 240);
+        width: 100%;
+    }
+    #navigation-nav {
+        background-color:rgb(35, 45, 59);
+        height: 65px;
+        width: 100%;
+    }
+    #nav_container {
+        margin-left: 50px;
+    }
+    #nav-left > li > h2{
+        color:rgb(251, 253, 255);
+        width: 150px;
+    }
+    #nav-left > li > a{
+        color:rgb(251, 253, 255);
+        font-size: large;
+        width: 120px;
+        margin-top: 8px;
+    }
+    #nav-left > li > a:hover{
+        background-color:rgb(9, 22, 34);
+    }
+    #nav-left > li > a:visited{
+        background-color:rgb(9, 22, 34);
+    }
+    #nav-right {
+        float: right;
+        margin-top: 10px;
+    }
+    #nav-right > a {
+        color:rgb(251, 253, 255);
+    }
+    #main{
+        width: 100%;
+    }
+    #search_container {
+        margin-left: 200px;
+    }
+    #title {
+        margin-top: 30px;
+        text-align: center;
+    }
+    #search{
+        margin-left: 90px;
+        margin-top: 30px;
+        width: 1000px;
+    }
+    #result{
+        margin-top: 30px;
+    }
+    #panel{
+        background-color:rgb(35, 45, 59);
+        color:rgb(251, 253, 255);
+    }
+    #submit-btn {
+        text-align: center;
+    }
+    #change {
+        width: 150px;
+        color:rgb(251, 253, 255);
+        background-color:rgb(35, 45, 59);
+    }
+    </style>
+</head>
+
+<body id="body">
+    <!-- 导航栏 -->
+    <nav id="navigation-nav">
+        <div class="container navigation" id="nav_container"> 
+            <div class="low">
+                <div class="col-xs-10">             
+                    <ul class="nav navbar-nav" id="nav-left">
+                        <li><h2>工位管理</h2></a></li>
+                        <li><a href="{% url 'assign:admin_index' %}">首页</a></li>
+                        <li><a href="{% url 'assign:search' %}">查询</a></li>
+                        <li><a href="{% url 'assign:admin_seat' %}">工位管理</a></li>
+                        <li><a href="{% url 'assign:admin_account' %}">账户管理</a></li>
+                        <li><a href="{% url 'assign:admin_fee' %}">计费管理</a></li>
+                        <li class="dropdown" id="nav-down">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <b class="caret"></b>
+                                学生管理
+                                
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="{% url 'assign:admin_info' %}">学生信息管理</a></li>
+                                <li><a href="{% url 'assign:admin_graduate' %}">毕业管理</a></li>
+                            </ul>
+                        </li>             
+                    </ul>
+                </div>
+                <div class="col-xs-2">
+                    <div class="dropdown"  id="nav-right">
+                        <a href="#" class="btn btn-lg dropdown-toggle" data-toggle="dropdown" class="form-inline" id="username1"> 
+                            <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu" role="menu"> 
+                            <li><a href="#"><span class="glyphicon glyphicon-user" id="username2"></span></a></li>
+                            <li class="divider"></li>
+                            <li><a href="{% url 'assign:person_info' %}">修改个人信息</a></li>
+                            <li><a href="{% url 'assign:logout' %}">退出登录</a></li>
+                        </ul>
+                    </div> 
+                </div>
+            </div>
+        </div>
+    </nav>
+   
+    <div class="container main" id="main">
+
+        
+            <div class="well" id="well">
+                <h3 class="text-center">计费功能</h3>
+                                
+                            <table id="table" class="container table table-bordered text-center">
+                                <thead id="row0">
+                                    <tr>
+                                        <td>选择</td>
+                                        <td>教师姓名</td>
+                                        <td>职称</td>
+                                        <td>免费学硕工位数量</td>
+                                        <td>免费博士工位数量</td> 
+                                        <td>学硕工位占用</td>
+                                        <td>博士工位占用</td>
+                                        <td>其他工位占用</td>
+                                        <td>单位费用</td>
+                                        <td>总费用</td> 
+                                        <td>是否缴费</td>                                     
+                                    </tr>
+                                </thead>
+                                <tbody id = "tablebody">
+                                </tbody>
+                            </table>                                            
+            
+            </div>
+            <div id="submit-btn">
+                <button class="btn btn-primary btn-lg " id="change" data-toggle="modal" data-target="#mymodal" onclick="setnull()">修改</button>
+            </div>
+            
+            <div class="form-inline text-left">
+                
+                <br>注: 默认情况下,教授每学期免费博士工位: 2, 免费学硕工位: 2; 副教授每学期免费博士工位: 1, 免费学硕工位: 2; 讲师每学期免费学硕工位: 2。每学期按四个月计费。
+            </div>
+        
+    </div>
+
+
+    <!-- 模态框（Modal） -->
+	<div class="modal fade" id="mymodal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+					<h4 class="modal-title" id="myModalLabel">修改</h4>
+				</div>
+				<div class="modal-body">
+					<form role="form">
+						
+						<div class="form-group">
+							<label >学硕免费名额更改为</label>
+							<input type="text" class="form-control" name = "tpost" id="tpost" placeholder="请输入">
+                        </div>
+                        <div class="form-group">
+							<label >博士免费名额更改为</label>
+							<input type="text" class="form-control" name = "tdoctor" id="tdoctor" placeholder="请输入">
+						</div>
+
+                        <div class="form-group">
+							<label >工位每月费用更改为</label>
+							<input type="text" class="form-control" name = "tunit" id="tunit" placeholder="请输入">
+                        </div>
+                        
+
+                        <div class="form-group">
+							<label >是否缴费更改为</label>
+							<input type="radio" style="margin-left:10px;" name="tpay" id="tpay" value="0" checked>否
+                            <input type="radio" style="margin-left:50px;" name="tpay" id="tpay" value="1">是
+                        </div>
+                        
+
+					</form>
+					
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+					<button type="button" class="btn btn-primary" onclick = "change()" data-dismiss="modal" >提交更改</button>
+				</div>
+			</div>
+			<!-- /.modal-content -->
+		</div>
+		<!-- /.modal -->
+	</div>
+    
+	<!-- 模态框（Modal）end -->
+    <!-- 判断不为空模态框（Modal） --> 
+    <div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body" style="text-align:center;"><h1 id="title">输入框不能为空，请重新输入</h1></div>
+                <div class="modal-footer">
+                    <div class="btn-group" role="group" style="padding-right: 240px;">                                           
+                        <a href="" class="btn btn-primary btn-lg" data-dismiss="modal" onclick="showmodal()">确定</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    
+
+</body>
+
+
+<script>
+
+    var count=0;//记录现在数组有几个元素
+    window.onload = function(){//刚开始刷新的时候的代码,从数据库中读取数据
+        select();
+        
+        get_user();
+        
+    }
+
+    function showmodal(){
+            $('#mymodal').modal();
+    }
+    function setnull(){
+            document.getElementsByName("tpost")[0].value = "";
+            document.getElementsByName("tdoctor")[0].value = "";
+            document.getElementsByName("tunit")[0].value = "";
+    }
+
+    //用处不大，把用户名显式出来
+    function get_user(){
+        // console.log("YYY");
+        var username = JSON.parse('{{username|safe}}');
+        console.log(username);
+        document.getElementById("username1").appendChild(document.createTextNode(username));
+        document.getElementById("username2").appendChild(document.createTextNode(username));
+    }
+    //改变函数，点击改变按钮，网页表格的该改变+后端数据库的改变
+    function change(){
+        var teacherinfo = ['0','0','0','0','0','0','0','0','0','0'];
+        var _tpost = document.getElementsByName("tpost")[0].value;
+        var _tdoctor = document.getElementsByName("tdoctor")[0].value;
+        var _tunit = document.getElementsByName("tunit")[0].value;
+        if(_tpost == "" || _tdoctor == "" || _tunit == ""){
+            $('#myModal2').modal();//输入空字符串进行弹窗
+        }
+        else{//for循环找到框框里打对号的那个
+            for(var i=0;i<count;i++){
+                var tmp = document.getElementById(i);
+                if(tmp.checked){
+                    var par=tmp.parentNode;
+                    tname_ = par.children[1].innerHTML;
+                    title_ = par.children[2].innerHTML;
+                    _tpost = parseInt(_tpost);
+                    _tdoctor = parseInt(_tdoctor);
+                    _tunit = parseInt(_tunit);
+                    par.children[3].innerHTML = _tpost;
+                    par.children[4].innerHTML =_tdoctor;
+                    top_ = parseInt(par.children[5].innerHTML);
+                    tod_ = parseInt(par.children[6].innerHTML);
+                    too_ = parseInt(par.children[7].innerHTML);
+                    par.children[8].innerHTML = _tunit;
+                    if(top_>_tpost){
+                        delta_post = top_ - _tpost;
+                    }
+                    else{
+                        delta_post = 0;
+                    }
+                    if(tod_ > _tdoctor){
+                        delta_doc = tod_ - _tdoctor;
+                    }
+                    else{
+                        delta_doc = 0;
+                    }
+
+                    
+                    par.children[9].innerHTML = (delta_doc + delta_post + too_)*_tunit*4;
+        
+                
+                    tpay_ = $('input:radio[name="tpay"]:checked').val();
+                    console.log(tpay_);
+                    console.log(par.children[9]);
+                    console.log(par.children[10]);
+                    console.log(par.children[10].innerHTML);
+                    if(tpay_=="0"){
+                        par.children[10].innerHTML = "否";
+                    }
+                    else{
+                        par.children[10].innerHTML = "是";
+                    }   
+                    
+                }
+            }
+            teacherinfo[0] = par.children[1].innerHTML;
+            teacherinfo[1] = par.children[2].innerHTML;
+            teacherinfo[2] = par.children[3].innerHTML;
+            teacherinfo[3] = par.children[4].innerHTML;
+            teacherinfo[4] = par.children[5].innerHTML;//top
+            teacherinfo[5] = par.children[6].innerHTML;//tod
+            teacherinfo[6] = par.children[7].innerHTML;//too
+            teacherinfo[7] = par.children[8].innerHTML;
+            teacherinfo[8] = par.children[9].innerHTML;
+            teacherinfo[9] = tpay_;
+
+            console.log(teacherinfo);
+
+        }
+    
+        //修改表格功能做好了，接下来是更改后的数据到数据库
+        $.ajaxSetup({
+            data:{csrfmiddlewaretoken:'{{ csrf_token }}'}
+        })
+
+        $.ajax({
+            type:"POST",
+            url: "{% url 'assign:admin_fee' %}",
+            traditional:true,
+            async:false,
+            data:{
+                fee_info:teacherinfo,
+                status:0},
+            success: function(result) {
+                result = JSON.parse(result);
+                if(result["status"] == 0){
+                    alert("更改失败");
+                }
+            },
+            error: function(e){
+                alert("提交失败");
+            }
+            
+        });
+
+
+
+    }
+
+
+
+    function select(){
+        var fee_info = JSON.parse('{{fee_info|safe}}');// 从后端数据库传入数据
+        // console.log(fee_info.length);
+        // console.log(fee_info[0][1]);
+        for(var i = 0; i < fee_info.length; i++){
+            var para = document.createElement("tr");
+            var tdchoose = document.createElement("input");
+            tdchoose.type = 'checkbox';
+            tdchoose.id = count;
+            // 把选择的那个框框传入到前端
+            var node1 = document.createTextNode("选择");
+            tdchoose.appendChild(node1);
+            para.appendChild(tdchoose);
+            // 教师姓名传入前端
+            var tname = document.createElement("td");
+            var node2 = document.createTextNode(fee_info[i][0]);
+            tname.appendChild(node2);
+            para.appendChild(tname);
+            // 教师职称传入前端
+            var title = document.createElement("td");
+            var node3 = document.createTextNode(fee_info[i][1]);
+            title.appendChild(node3);
+            para.appendChild(title);
+            //教师免费学硕名额
+            var tfree1 = document.createElement("td");
+            var node4 = document.createTextNode(fee_info[i][2]);
+            tfree1.appendChild(node4);
+            para.appendChild(tfree1);
+            //教师免费博士名额
+            var tfree2 = document.createElement("td");
+            var node5 = document.createTextNode(fee_info[i][3]);
+            tfree2.appendChild(node5);
+            para.appendChild(tfree2);
+            //教师学硕名额占用
+            var toccupy1 = document.createElement("td");
+            var node6 = document.createTextNode(fee_info[i][4]);
+            toccupy1.appendChild(node6);
+            para.appendChild(toccupy1);
+            //教师博士名额占用
+            var toccupy2 = document.createElement("td");
+            var node7 = document.createTextNode(fee_info[i][5]);
+            toccupy2.appendChild(node7);
+            para.appendChild(toccupy2);
+            //教师其他类别学生名额占用
+            var toccupy3 = document.createElement("td");
+            var node8 = document.createTextNode(fee_info[i][6]);
+            toccupy3.appendChild(node8);
+            para.appendChild(toccupy3);
+            //教师需支付单位费用
+            var tunit = document.createElement("td");
+            var node9 = document.createTextNode(fee_info[i][7]);
+            tunit.appendChild(node9);
+            para.appendChild(tunit);
+            //教师需支付总费用
+            var tfee = document.createElement("td");
+            var node10 = document.createTextNode(fee_info[i][8]);
+            tfee.appendChild(node10);
+            para.appendChild(tfee);
+            //教师是否完成付费
+            var tpay = document.createElement("td");
+            if(fee_info[i][9] == '0'){
+                var node11 = document.createTextNode("否");
+            }
+            else if(fee_info[i][9]=='1'){
+                var node11 = document.createTextNode("是");
+            }
+            tpay.appendChild(node11);
+            para.appendChild(tpay);
+        
+        //最后加入到整体文件之中
+        var element=document.getElementById("tablebody");
+        element.appendChild(para);
+        count += 1;
+        }
+    }
+
+
+    
+</script>
+
+</html>

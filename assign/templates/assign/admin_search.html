@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>查询</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <style>
+    #body {
+        background-color:rgb(235, 239, 240);
+        width: 100%;
+    }
+    #navigation-nav {
+        background-color:rgb(35, 45, 59);
+        height: 65px;
+        width: 100%;
+    }
+    #nav_container {
+        margin-left: 50px;
+    }
+    #nav-left > li > h2{
+        color:rgb(251, 253, 255);
+        width: 150px;
+    }
+    #nav-left > li > a{
+        color:rgb(251, 253, 255);
+        font-size: large;
+        width: 120px;
+        margin-top: 8px;
+    }
+    #nav-left > li > a:hover{
+        background-color:rgb(9, 22, 34);
+    }
+    #nav-left > li > a:visited{
+        background-color:rgb(9, 22, 34);
+    }
+    #nav-right {
+        float: right;
+        margin-top: 10px;
+    }
+    #nav-right > a {
+        color:rgb(251, 253, 255);
+    }
+    #main{
+        width: 100%;
+    }
+    #search_container {
+        margin-left: 200px;
+    }
+    #title {
+        margin-top: 30px;
+        text-align: center;
+    }
+    #search{
+        margin-left: 90px;
+        margin-top: 30px;
+        width: 1000px;
+    }
+    #result{
+        margin-top: 30px;
+    }
+    #panel{
+        background-color:rgb(35, 45, 59);
+        color:rgb(251, 253, 255);
+    }
+    </style>
+</head>
+
+<body id="body">
+    <!-- 导航栏 -->
+    <nav id="navigation-nav">
+        <div class="container navigation" id="nav_container"> 
+            <div class="low">
+                <div class="col-xs-10">             
+                    <ul class="nav navbar-nav" id="nav-left">
+                        <li><h2>工位管理</h2></a></li>
+                        <li><a href="{% url 'assign:admin_index' %}">首页</a></li>
+                        <li><a href="{% url 'assign:search' %}">查询</a></li>
+                        <li><a href="{% url 'assign:admin_seat' %}">工位管理</a></li>
+                        <li><a href="{% url 'assign:admin_account' %}">账户管理</a></li>
+                        <li><a href="{% url 'assign:admin_fee' %}">计费管理</a></li>
+                        <li class="dropdown" id="nav-down">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <b class="caret"></b>
+                                学生管理
+                                
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="{% url 'assign:admin_info' %}">学生信息管理</a></li>
+                                <li><a href="{% url 'assign:admin_graduate' %}">毕业管理</a></li>
+                            </ul>
+                        </li>             
+                    </ul>
+                </div>
+                <div class="col-xs-2">
+                    <div class="dropdown"  id="nav-right">
+                        <a href="#" class="btn btn-lg dropdown-toggle" data-toggle="dropdown" class="form-inline" id="username1"> 
+                            <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu" role="menu"> 
+                            <li><a href="#"><span class="glyphicon glyphicon-user" id="username2"></span></a></li>
+                            <li class="divider"></li>
+                            <li><a href="{% url 'assign:person_info' %}">修改个人信息</a></li>
+                            <li><a href="{% url 'assign:logout' %}">退出登录</a></li>
+                        </ul>
+                    </div> 
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div class="container search" id="search_container">
+        <h1 id="title">实验室工位管理系统</h1>
+        <div class="input-group input-group-lg" id="search">
+            {% csrf_token %}
+            <input type="text" class="form-control" placeholder="Search" id="inputing">
+            <span class="input-group-btn">
+                <button type="submit" class="btn btn-default btn-info" onclick="send_info(0)">搜索</button>                                
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary dropdown-toggle btn-lg" data-toggle="dropdown" style="margin-left: 5px;">
+                        <span class="buttonText">选择查询功能</span>
+                        <span class="caret"></span>
+                        <span class="sr-only">切换下拉菜单</span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="#" onclick="set_info(1, $(this).text())">按学生学号查询</a></li>
+                        <li><a href="#" onclick="set_info(2, $(this).text())">按学生姓名查询</a></li>
+                        <li><a href="#" onclick="set_info(3, $(this).text())">按导师编号查询</a></li>
+                        <li><a href="#" onclick="set_info(4, $(this).text())">按课题组查询</a></li>
+                        <li><a href="#" onclick="send_info(5, $(this).text())">查询空闲工位</a></li>
+                    </ul>
+                </div>
+            </span>
+        </div>                                   
+    </div>
+    <div class="container result" id="main">
+        <div id="result">
+            <ul class="nav nav-tabs" id="ntabs">               
+            </ul>
+            <div class="tab-content" id="ctabs">
+                <h1 style="margin-left: 550px;">还没有进行任何查询，请搜索</h1>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript">
+    function init_tab(list_lab_info){
+        for(var i = 0; i < list_lab_info.length; i++){
+            var l = document.createElement("li");
+            var a = document.createElement("a");
+            var e = '#lab' + String(i);
+            a.setAttribute('href', e);
+            a.setAttribute('data-toggle', 'tab');            
+            a.appendChild(document.createTextNode('实验室' + String(list_lab_info[i][0])));
+            l.appendChild(a);
+            
+            document.getElementById("ntabs").appendChild(l);
+        }                                           
+    }
+    function init_tabcontent(list_lab_info){
+        for(var i = 0; i < list_lab_info.length; i++){
+            if(i == 0){
+                var d1 = document.createElement("div");
+                d1.setAttribute('class', 'tab-pane fade in active');
+                d1.setAttribute('id', 'lab' + String(i));
+                var d2 = document.createElement("div");
+                d2.setAttribute('class', 'well');                                                        
+                var d3 = document.createElement("div");
+                d3.setAttribute('class', 'panel panel-body');
+                d3.setAttribute('id', 'panel');
+                d3.setAttribute('style', 'text-align: center;');
+                d3.appendChild(document.createTextNode('实验室' + String(list_lab_info[i][0]) + '工位布局图'));
+
+                var ta = document.createElement("table");
+                ta.setAttribute('class', 'table table-bordered');
+                ta.setAttribute('style', 'word-break:break-all; word-wrap:break-all;table-layout:fixed;');
+                var tb = document.createElement("tbody");
+                tb.setAttribute('id', 'tbody' + String(i));
+
+                ta.appendChild(tb);
+                d2.appendChild(d3);
+                d2.appendChild(ta);                             
+                d1.appendChild(d2);
+
+                document.getElementById("ctabs").appendChild(d1);
+            }
+            else{
+                var d1 = document.createElement("div");
+                d1.setAttribute('class', 'tab-pane fade');
+                d1.setAttribute('id', 'lab' + String(i));
+                var d2 = document.createElement("div");
+                d2.setAttribute('class', 'well');
+                var d3 = document.createElement("div");
+                d3.setAttribute('class', 'panel panel-body');
+                d3.setAttribute('id', 'panel');
+                d3.setAttribute('style', 'text-align: center;');
+                d3.appendChild(document.createTextNode('实验室' + String(list_lab_info[i][0]) + '工位布局图'));
+
+                var ta = document.createElement("table");
+                ta.setAttribute('class', 'table table-bordered');
+                ta.setAttribute('style', 'word-break:break-all; word-wrap:break-all;table-layout:fixed;');
+                var tb = document.createElement("tbody");
+                tb.setAttribute('id', 'tbody' + String(i));
+
+                ta.appendChild(tb);
+                d2.appendChild(d3);
+                d2.appendChild(ta);                                                               
+                d1.appendChild(d2);
+
+                document.getElementById("ctabs").appendChild(d1);
+            }
+        }
+    }
+    function init_table(num, list_lab_info, list_seat_info, search_col, search_key){                           
+        var r = list_lab_info[num][1];
+        var c = list_lab_info[num][2];
+        for(var i = 0; i < r; i++){
+            var row=document.createElement("tr"); 
+            for(var j = 0; j < c; j++){
+                var cell=document.createElement("td");
+                cell.setAttribute('height', '80px');
+                cell.setAttribute('width', '100px');
+                cell.setAttribute('class', 'text-center');
+                cell.setAttribute('style', 'white-space:pre-line;font-size: 12px;');
+                for(var k = 0; k < list_seat_info[num].length; k++){
+                    if(list_seat_info[num][k][0] == i && list_seat_info[num][k][1] == j){
+                        if(list_seat_info[num][k][4] == 1){
+                            var message = "姓名：" + list_seat_info[num][k][5] + "\n";
+                            message += "学号：" + list_seat_info[num][k][6] + "\n";
+                            message += "身份："+ list_seat_info[num][k][7];
+                            cell.appendChild(document.createTextNode(message));
+
+                        }
+                        else if(list_seat_info[num][k][3] == 2){
+                            var message = "大门";
+                            cell.style.background = "red";
+                            cell.appendChild(document.createTextNode(message));
+                        }
+                        else{
+                            var message = "空闲工位";
+                            cell.style.background = "gray";
+                            cell.style.color = "white";
+                            cell.appendChild(document.createTextNode(message));
+                        }
+                        if(search_key == list_seat_info[num][k][search_col] && search_col != 4){
+                            cell.style.background = "yellow";
+                        }
+                    }
+                }
+                row.appendChild(cell);
+            }
+            document.getElementById("tbody" + String(num)).appendChild(row); 
+        }
+    }
+    function Change(list_lab_info, list_seat_info, search_col, search_key, status){
+        var r = document.getElementById("result");
+        var ntab = document.getElementById("ntabs");
+        var ctab = document.getElementById("ctabs");
+        r.removeChild(ntab);
+        r.removeChild(ctab);
+        var n = document.createElement("ul");
+        n.setAttribute('class', 'nav nav-tabs');
+        n.setAttribute('id', 'ntabs');
+        var c = document.createElement("div");
+        c.setAttribute('class', 'tab-content');
+        c.setAttribute('id', 'ctabs'); 
+        r.appendChild(n);
+        r.appendChild(c);
+        if(status == 0){
+            init_tab(list_lab_info);
+            init_tabcontent(list_lab_info);
+            for(var num = 0; num < list_lab_info.length; num++){
+                init_table(num, list_lab_info, list_seat_info, search_col, search_key);
+            }
+        }
+        else{
+            var h = document.createElement("h1");
+            h.setAttribute('style', 'margin-left: 650px;');
+            h.appendChild(document.createTextNode("查询内容有误"));
+            var c = document.getElementById("ctabs");
+            c.appendChild(h);
+        }   
+    }
+    var _key;
+    var _stype;
+    function set_info(s, a) {
+        $('.buttonText').text(a);
+        _stype = s;
+    }
+    function send_info(s,a){
+        $('.buttonText').text(a);
+        _key = document.getElementById("inputing").value;
+        if(s == 5){
+            _stype = 5;
+        }
+        var _status = 0
+        $.ajax({
+            url:"{% url 'assign:query' %}",
+            type: "GET",
+            data: {key: _key,
+                   stype: _stype},
+            success: function(data){
+                data = JSON.parse(data);               
+                Change(data["list_lab_info"], data["list_seat_info"], data["search_col"], data["search_key"], data["status"]);
+            }
+            
+        });
+    }
+    function get_user(){
+        var username = JSON.parse('{{ username|safe }}');
+        document.getElementById("username1").appendChild(document.createTextNode(username));
+        document.getElementById("username2").appendChild(document.createTextNode(username));
+    }
+    window.onload = function() {
+        get_user();
+    }
+</script>
+</html>
